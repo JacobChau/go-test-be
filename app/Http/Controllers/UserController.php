@@ -35,7 +35,7 @@ class UserController extends Controller
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        return response()->json($users);
+        return $this->sendResponse($users, 'Users retrieved successfully');
     }
 
     /**

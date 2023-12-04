@@ -9,7 +9,7 @@ use App\Http\Resources\UserResource;
 use App\Services\UserService;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 
 class AuthController extends Controller
@@ -26,9 +26,10 @@ class AuthController extends Controller
 
         event(new Registered($user));
 
-        return response()->json([
-            'message' => __('Account successfully registered.'),
-        ], Response::HTTP_CREATED);
+        return $this->sendResponse(
+            __('User registered successfully'),
+            Response::HTTP_CREATED
+        );
     }
 
     /**
@@ -38,19 +39,49 @@ class AuthController extends Controller
     {
         $credentials = $request->only(['email', 'password']);
 
-        if (!Auth::attempt($credentials)) {
+        if (! $token = auth()->attempt($credentials)) {
             return response()->json([
                 'message' => __('Invalid credentials'),
             ], Response::HTTP_UNAUTHORIZED);
         }
 
-        $user = $this->userService->getByEmail($request['email']);
+        return $this->sendResponse([
+            'user' => new UserResource(auth()->user()),
+            'access_token' => $token,
+        ], __('User logged in successfully'));
+    }
 
-        $token = $user->createToken('authToken')->plainTextToken;
+    /**
+     * Get the authenticated User.
+     *
+     * @return JsonResponse
+     */
+    public function me(): JsonResponse
+    {
+        return response()->json(auth()->user());
+    }
 
-        return response()->json([
-            'user' => new UserResource($user),
-            'token' => $token,
-        ], Response::HTTP_OK);
+    /**
+     * Log the user out (Invalidate the token).
+     *
+     * @return JsonResponse
+     */
+    public function logout(): JsonResponse
+    {
+        auth()->logout();
+
+        return response()->json(['message' => 'Successfully logged out']);
+    }
+
+    /**
+     * Refresh a token.
+     *
+     * @return JsonResponse
+     */
+    public function refresh(): JsonResponse
+    {
+        return $this->sendResponse([
+            'access_token' => auth()->refresh(),
+        ], __('Token refreshed successfully'));
     }
 }

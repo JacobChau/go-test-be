@@ -28,7 +28,7 @@ Route::controller(PasswordController::class)->prefix('auth')->name('auth.')->gro
     Route::post('/reset-password', 'reset')->name('reset');
 });
 
-Route::middleware(['auth:sanctum'])->group(function () {
+Route::middleware(['api'])->group(function () {
     Route::controller(PasswordController::class)->prefix('auth')->name('auth.')->group(function () {
         Route::put('/change-password', 'change')->name('change');
     });
@@ -38,7 +38,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 });
 
-Route::middleware(['auth:sanctum','role:'.UserRole::Admin])->group(function () {
+Route::middleware(['api','role:'.UserRole::Admin])->group(function () {
     Route::controller(UserController::class)->prefix('users')->name('users.')->group(function () {
         Route::get('/', 'index')->name('index');
         Route::post('/', 'store')->name('store');
