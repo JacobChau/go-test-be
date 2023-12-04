@@ -14,9 +14,7 @@ class AuthService extends BaseService
     public function login(array $credentials): string
     {
         if (! $token = auth()->attempt($credentials)) {
-            response()->json([
-                'message' => __('Invalid credentials'),
-            ], Response::HTTP_UNAUTHORIZED);
+            return '';
         }
 
         return $token;

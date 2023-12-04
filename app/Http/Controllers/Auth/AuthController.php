@@ -42,11 +42,17 @@ class AuthController extends Controller
      */
     public function login(LoginRequest $request): JsonResponse
     {
-        $result = $this->authService->login($request->only(['email', 'password']));
+        $token = $this->authService->login($request->validated());
+
+        if (! $token) {
+            return response()->json([
+                'message' => 'Invalid credentials'
+            ], Response::HTTP_UNAUTHORIZED);
+        }
 
         return $this->sendResponse([
             'user' => new UserResource(auth()->user()),
-            'access_token' => $result,
+            'access_token' => $token,
         ], 'User logged in successfully');
     }
 
