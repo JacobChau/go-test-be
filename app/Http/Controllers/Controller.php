@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Routing\Controller as BaseController;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -16,18 +15,16 @@ class Controller extends BaseController
     public function sendResponse($result, $message, $code = Response::HTTP_OK): JsonResponse
     {
         if (isset($result['meta'])) {
-            $response = [
+            return response()->json([
                 'data' => $result['data'],
                 'meta' => $result['meta'],
                 'message' => $message,
-            ];
-        } else {
-            $response = [
-                'data' => $result,
-                'message' => $message,
-            ];
+            ], $code);
         }
 
-        return response()->json($response, $code);
+        return response()->json([
+            'data' => $result,
+            'message' => $message,
+        ], $code);
     }
 }

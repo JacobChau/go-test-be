@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Hash;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class ChangePasswordRequest extends FormRequest
 {
@@ -22,7 +24,14 @@ class ChangePasswordRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'oldPassword' => 'required',
+            'oldPassword' => [
+                'required',
+                function ($attribute, $value, $fail) {
+                    if (!Hash::check($value, auth()->user()->password)) {
+                        $fail('The old password is incorrect.');
+                    }
+                },
+            ],
             'newPassword' => 'required|string|min:8',
         ];
     }

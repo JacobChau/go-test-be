@@ -19,11 +19,6 @@ class BaseService
         return $this->model->create($data);
     }
 
-    public function forceCreate(array $data): object
-    {
-        return $this->model->forceCreate($data);
-    }
-
     public function update(int $id, array $data): void
     {
         $this->model->where('id', $id)->update($data);

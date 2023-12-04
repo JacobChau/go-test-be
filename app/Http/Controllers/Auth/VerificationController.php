@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Services\AuthService;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -10,41 +11,30 @@ use Symfony\Component\HttpFoundation\Response;
 
 class VerificationController extends Controller
 {
-    public function __construct()
+    protected AuthService $authService;
+
+    public function __construct(AuthService $authService)
     {
-        $this->middleware('auth');
-        $this->middleware('signed')->only('verify');
-        $this->middleware('throttle:6,1')->only('verify', 'resend');
+        $this->authService = $authService;
+
+        $this->middleware(['auth', 'throttle:6,1'])->only('verify', 'resend');
     }
 
     public function verify(EmailVerificationRequest $request) : JsonResponse
     {
-        $this->checkIfEmailVerified($request);
-
-        $request->fulfill();
+        $this->authService->verifyEmail($request);
 
         return response()->json([
-            'message' => __('Email verified'),
+            'message' => 'Email verified successfully'
         ], Response::HTTP_OK);
     }
 
     public function resend(Request $request) : JsonResponse
     {
-        $this->checkIfEmailVerified($request);
-
-        $request->user()->sendEmailVerificationNotification();
+        $this->authService->resendVerificationEmail($request);
 
         return response()->json([
-            'message' => __('Email verification link sent on your email id'),
+            'message' => 'Email verification link sent on your email id'
         ], Response::HTTP_ACCEPTED);
-    }
-
-    private function checkIfEmailVerified(Request $request) : void
-    {
-        if ($request->user()->hasVerifiedEmail()) {
-            response()->json([
-                'message' => __('Email already verified'),
-            ], Response::HTTP_NO_CONTENT);
-        }
     }
 }

@@ -9,12 +9,14 @@ use App\Models\User;
 use App\Services\UserService;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
-use Throwable;
 
 class UserController extends Controller
 {
-    public function __construct(private readonly UserService $userService)
+    protected UserService $userService;
+
+    public function __construct(UserService $userService)
     {
+        $this->userService = $userService;
     }
 
     /**
@@ -22,18 +24,12 @@ class UserController extends Controller
      */
     public function index(): JsonResponse
     {
-        try {
-            $relations = [];
-            if (request()->has('include')) {
-                $relations = explode(',', request()->get('include'));
-            }
-
-            $users = $this->userService->getList(request()->all(), null, $relations, UserResource::class);
-        } catch (Throwable $th) {
-            return response()->json([
-                'message' => $th->getMessage(),
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        $relations = [];
+        if (request()->has('include')) {
+            $relations = explode(',', request()->get('include'));
         }
+
+        $users = $this->userService->getList(request()->all(), null, $relations, UserResource::class);
 
         return $this->sendResponse($users, 'Users retrieved successfully');
     }
@@ -43,11 +39,10 @@ class UserController extends Controller
      */
     public function store(StoreUserRequest $request) : JsonResponse
     {
-        // admin can create user with verified email
-        $this->userService->forceCreate($request->validated() + ['email_verified_at' => now()]);
+        $this->userService->create($request->validated() + ['email_verified_at' => now()]);
 
         return response()->json([
-            'message' => __('User successfully created.'),
+            'message' => 'User successfully created.'
         ], Response::HTTP_CREATED);
     }
 
@@ -56,19 +51,12 @@ class UserController extends Controller
      */
     public function show(string $id): JsonResponse
     {
-        try {
-            $relations = [];
-            if (request()->has('include')) {
-                $relations = explode(',', request()->get('include'));
-            }
-
-            $user = $this->userService->getById($id, $relations);
-
-        } catch (Throwable $th) {
-            return response()->json([
-                'message' => $th->getMessage(),
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        $relations = [];
+        if (request()->has('include')) {
+            $relations = explode(',', request()->get('include'));
         }
+
+        $user = $this->userService->getById($id, $relations);
 
         return response()->json(['data' => new UserResource($user), 'message' => 'User retrieved successfully']);
     }

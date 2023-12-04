@@ -6,15 +6,20 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Resources\UserResource;
+use App\Services\AuthService;
 use App\Services\UserService;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 
 class AuthController extends Controller
 {
-    public function __construct(private readonly UserService $userService) {
+    protected UserService $userService;
+    protected AuthService $authService;
+
+    public function __construct(UserService $userService, AuthService $authService) {
+        $this->userService = $userService;
+        $this->authService = $authService;
     }
 
     /**
@@ -27,7 +32,7 @@ class AuthController extends Controller
         event(new Registered($user));
 
         return $this->sendResponse(
-            __('User registered successfully'),
+            'User registered successfully',
             Response::HTTP_CREATED
         );
     }
@@ -37,18 +42,12 @@ class AuthController extends Controller
      */
     public function login(LoginRequest $request): JsonResponse
     {
-        $credentials = $request->only(['email', 'password']);
-
-        if (! $token = auth()->attempt($credentials)) {
-            return response()->json([
-                'message' => __('Invalid credentials'),
-            ], Response::HTTP_UNAUTHORIZED);
-        }
+        $result = $this->authService->login($request->only(['email', 'password']));
 
         return $this->sendResponse([
             'user' => new UserResource(auth()->user()),
-            'access_token' => $token,
-        ], __('User logged in successfully'));
+            'access_token' => $result,
+        ], 'User logged in successfully');
     }
 
     /**
