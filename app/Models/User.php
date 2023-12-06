@@ -100,21 +100,6 @@ class User extends Authenticatable implements MustVerifyEmail, JWTSubject
         $this->notify(new ResetPasswordQueued($token));
     }
 
-    // ------------------ Scopes ------------------
-    public function scopeEmail($query, string $email)
-    {
-        return $query->where('email', $email);
-    }
-
-    public function scopeName($query, string $name)
-    {
-        return $query->where('name', $name);
-    }
-
-    public function scopeVerified($query, bool $verified)
-    {
-        return $verified ? $query->whereNotNull('email_verified_at') : $query->whereNull('email_verified_at');
-    }
 
     // ------------------ Relationships ------------------
     public function groups(): BelongsToMany
@@ -141,4 +126,22 @@ class User extends Authenticatable implements MustVerifyEmail, JWTSubject
     {
         return $this->hasMany(Question::class, 'created_by');
     }
+
+
+    // ------------------ Scopes ------------------
+    public function scopeEmail($query, string $email)
+    {
+        return $query->where('email', $email);
+    }
+
+    public function scopeName($query, string $name)
+    {
+        return $query->where('name', $name);
+    }
+
+    public function scopeVerified($query, bool $verified)
+    {
+        return $verified ? $query->whereNotNull('email_verified_at') : $query->whereNull('email_verified_at');
+    }
+
 }
