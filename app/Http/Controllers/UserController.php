@@ -41,9 +41,11 @@ class UserController extends Controller
     {
         $this->userService->create($request->validated() + ['email_verified_at' => now()]);
 
-        return response()->json([
-            'message' => 'User successfully created.'
-        ], Response::HTTP_CREATED);
+        return $this->sendResponse(
+            null,
+            'User created successfully',
+            Response::HTTP_CREATED
+        );
     }
 
     /**

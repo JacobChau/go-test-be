@@ -32,6 +32,7 @@ class AuthController extends Controller
         event(new Registered($user));
 
         return $this->sendResponse(
+            null,
             'User registered successfully',
             Response::HTTP_CREATED
         );

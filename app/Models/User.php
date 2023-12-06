@@ -7,6 +7,8 @@ use App\Notifications\VerifyEmailQueued;
 use App\Notifications\ResetPasswordQueued;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
@@ -98,6 +100,35 @@ class User extends Authenticatable implements MustVerifyEmail, JWTSubject
         $this->notify(new ResetPasswordQueued($token));
     }
 
+
+    // ------------------ Relationships ------------------
+    public function groups(): BelongsToMany
+    {
+        return $this->belongsToMany(Group::class, 'user_groups')->withTimestamps();
+    }
+
+    public function assessmentAttempts(): HasMany
+    {
+        return $this->hasMany(AssessmentAttempt::class);
+    }
+
+    public function ownedGroups(): HasMany
+    {
+        return $this->hasMany(Group::class, 'created_by');
+    }
+
+    public function ownedAssessments(): HasMany
+    {
+        return $this->hasMany(Assessment::class, 'created_by');
+    }
+
+    public function ownedQuestions(): HasMany
+    {
+        return $this->hasMany(Question::class, 'created_by');
+    }
+
+
+    // ------------------ Scopes ------------------
     public function scopeEmail($query, string $email)
     {
         return $query->where('email', $email);
@@ -112,4 +143,5 @@ class User extends Authenticatable implements MustVerifyEmail, JWTSubject
     {
         return $verified ? $query->whereNotNull('email_verified_at') : $query->whereNull('email_verified_at');
     }
+
 }
