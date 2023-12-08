@@ -29,15 +29,4 @@ class UserService extends BaseService
     {
         return $this->model->query()->email($email)->first();
     }
-
-    public function getOrCreate(array $data): User
-    {
-        $user = $this->getByEmail($data['email']);
-
-        if ($user) {
-            return $user;
-        }
-
-        return $this->create($data);
-    }
 }

@@ -22,11 +22,13 @@ class AuthService extends BaseService
     {
         $results = $this->getUserInfoFromGoogle($accessToken);
 
-        $user = $this->userService->getOrCreate([
-            'name' => $results->family_name . ' ' . $results->given_name,
+        $user = $this->userService->firstOrCreate([
             'email' => $results->email,
-            'email_verified_at' => now(),
-        ]);
+        ], [
+            'name' => $results->family_name . ' ' . $results->given_name,
+            'email_verified_at' => now()
+            ]
+        );
 
         return $this->loginAndReturnToken($user);
     }

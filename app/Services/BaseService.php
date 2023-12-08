@@ -41,6 +41,11 @@ class BaseService
         return $query->find($id);
     }
 
+    public function firstOrCreate(array $conditions, array $data = []): object
+    {
+        return $this->model->firstOrCreate($conditions, $data);
+    }
+
     /**
      * @throws ReflectionException
      */
