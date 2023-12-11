@@ -17,8 +17,9 @@ return new class extends Migration
             $table->text('content');
             $table->string('media_url', 2048)->nullable();
             $table->smallInteger('media_type')->default(MediaType::Image)->nullable();
-            $table->foreignId('question_id')->constrained('questions');
+            $table->foreignId('question_id')->constrained('questions')->cascadeOnDelete();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

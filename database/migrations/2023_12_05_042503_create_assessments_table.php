@@ -23,10 +23,11 @@ return new class extends Migration
             $table->integer('duration');
             $table->timestamp('valid_from')->nullable();
             $table->timestamp('valid_to')->nullable();
-            $table->foreignId('subject_id')->constrained('subjects');
+            $table->foreignId('subject_id')->nullable()->constrained('subjects')->nullOnDelete();
 
-            $table->foreignId('created_by')->nullable()->constrained('users')->cascadeOnDelete();
+            $table->foreignId('created_by')->constrained('users')->cascadeOnDelete();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

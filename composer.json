@@ -13,7 +13,8 @@
         "laravel/tinker": "^2.8",
         "sentry/sentry-laravel": "^4.1",
         "timacdonald/json-api": "v1.0.0-beta.6",
-        "tymon/jwt-auth": "^2.0"
+        "tymon/jwt-auth": "^2.0",
+      "ext-cassandra": "*"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",

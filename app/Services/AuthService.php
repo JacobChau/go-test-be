@@ -25,6 +25,7 @@ class AuthService extends BaseService
         $user = $this->userService->firstOrCreate([
             'email' => $results->email,
         ], [
+        'avatar' => $results->picture,
             'name' => $results->family_name . ' ' . $results->given_name,
             'email_verified_at' => now()
             ]

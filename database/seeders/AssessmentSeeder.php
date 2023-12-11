@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Assessment;
 use App\Models\Question;
 use App\Models\Subject;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class AssessmentSeeder extends Seeder
@@ -34,6 +35,7 @@ class AssessmentSeeder extends Seeder
                 'valid_from' => now(),
                 'valid_to' => now()->addDays(7),
                 'subject_id' => $subjectId,
+                'created_by' => User::inRandomOrder()->first()?->id,
             ]);
 
             // Assuming you have 10 questions

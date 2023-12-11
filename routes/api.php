@@ -54,13 +54,13 @@ Route::middleware(['api','role:'.UserRole::Admin])->group(function () {
     Route::controller(UserController::class)->prefix('users')->name('users.')->group(function () {
         Route::get('/', 'index')->name('index');
         Route::post('/', 'store')->name('store');
-        Route::delete('/{id}', 'destroy')->name('destroy');
+        Route::put('/{user}', 'update')->name('update');
+        Route::delete('/{user}', 'destroy')->name('destroy');
     });
 });
 
 Route::middleware(['auth:sanctum','verified'])->group(function () {
     Route::controller(UserController::class)->prefix('users')->name('users.')->group(function () {
         Route::get('/{user}', 'show')->name('show');
-        Route::put('/{user}', 'update')->name('update');
     });
 });

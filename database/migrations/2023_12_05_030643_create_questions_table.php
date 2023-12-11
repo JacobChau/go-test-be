@@ -20,10 +20,11 @@ return new class extends Migration
             $table->string('media_url', 2048)->nullable();
             $table->smallInteger('media_type')->default(MediaType::Image)->nullable();
             $table->boolean('is_published')->default(true);
-            $table->foreignId('passage_id')->nullable()->constrained('passages');
+            $table->foreignId('passage_id')->nullable()->constrained('passages')->nullOnDelete();
 
             $table->foreignId('created_by')->nullable()->constrained('users')->cascadeOnDelete();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
