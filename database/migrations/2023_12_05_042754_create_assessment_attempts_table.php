@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('assessment_attempts', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users');
-            $table->foreignId('assessment_id')->constrained('assessments');
+            $table->foreignId('assessment_id')->constrained('assessments')->cascadeOnDelete();
             $table->float('total_marks');
             $table->timestamps();
         });

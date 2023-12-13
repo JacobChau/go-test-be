@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('assessment_attempt_answers', function (Blueprint $table) {
             $table->id();
             $table->text('answer_content');
-            $table->foreignId('assessment_attempt_id')->constrained('assessment_attempts');
-            $table->foreignId('assessment_question_id')->constrained('assessment_questions');
-            $table->foreignId('question_option_id')->constrained('question_options');
+            $table->foreignId('assessment_attempt_id')->constrained('assessment_attempts')->cascadeOnDelete();
+            $table->foreignId('assessment_question_id')->constrained('assessment_questions')->cascadeOnDelete();
+            $table->foreignId('question_option_id')->nullable()->constrained('question_options')->nullOnDelete();
             $table->timestamps();
         });
     }

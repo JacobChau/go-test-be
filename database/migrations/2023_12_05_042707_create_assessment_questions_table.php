@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('assessment_questions', function (Blueprint $table) {
             $table->id();
             $table->float('marks');
-            $table->foreignId('question_id')->constrained('questions');
-            $table->foreignId('assessment_id')->constrained('assessments');
+            $table->foreignId('question_id')->constrained('questions')->onDelete('cascade');
+            $table->foreignId('assessment_id')->constrained('assessments')->onDelete('cascade');
             $table->timestamps();
         });
     }

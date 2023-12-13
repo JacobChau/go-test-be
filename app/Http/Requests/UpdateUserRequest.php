@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests;
 
+use BenSampo\Enum\Rules\Enum;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Facades\Gate;
+use App\Enums\UserRole;
 
 class UpdateUserRequest extends ApiFormRequest
 {
@@ -18,6 +20,16 @@ class UpdateUserRequest extends ApiFormRequest
     }
 
     /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'role' => UserRole::coerce($this->role) ?? $this->route('user')->role,
+        ]);
+    }
+
+    /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, ValidationRule|array|string>
@@ -26,8 +38,10 @@ class UpdateUserRequest extends ApiFormRequest
     {
         return [
             'name' => 'string',
-            'email' => 'email|unique:users,email,'.$this->user()->id,
+            'email' => 'email|unique:users,email,'.$this->route('user')->id,
             'password' => 'string|confirmed',
+            'birthdate' => 'date',
+            'role' => ['required', new Enum(UserRole::class)],
         ];
     }
 }

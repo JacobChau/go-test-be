@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\LoginGoogleRequest;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Resources\UserResource;
@@ -53,7 +54,7 @@ class AuthController extends Controller
 
         return $this->sendResponse([
             'user' => new UserResource(auth()->user()),
-            'access_token' => $token,
+            'accessToken' => $token,
         ], 'User logged in successfully');
     }
 
@@ -68,18 +69,6 @@ class AuthController extends Controller
     }
 
     /**
-     * Log the user out (Invalidate the token).
-     *
-     * @return JsonResponse
-     */
-    public function logout(): JsonResponse
-    {
-        auth()->logout();
-
-        return response()->json(['message' => 'Successfully logged out']);
-    }
-
-    /**
      * Refresh a token.
      *
      * @return JsonResponse
@@ -87,7 +76,28 @@ class AuthController extends Controller
     public function refresh(): JsonResponse
     {
         return $this->sendResponse([
-            'access_token' => auth()->refresh(),
-        ], __('Token refreshed successfully'));
+            'accessToken' => auth()->refresh(),
+        ], 'Token refreshed successfully');
     }
+
+    /**
+     * Login user with Google
+     */
+    public function loginWithGoogle(LoginGoogleRequest $request): JsonResponse {
+        $validated = $request->validated();
+        $token = $this->authService->loginWithGoogle($validated['accessToken']);
+
+        if (! $token) {
+            return $this->sendResponse(
+                null,
+                'Invalid credentials',
+                Response::HTTP_UNAUTHORIZED
+            );
+        }
+
+        return $this->sendResponse([
+            'accessToken' => $token,
+        ], 'User logged in successfully');
+    }
+
 }
