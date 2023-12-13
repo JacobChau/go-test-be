@@ -25,6 +25,12 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropForeign(['created_by']);
+            $table->dropColumn('created_by');
+            $table->dropColumn('avatar');
+            $table->dropColumn('birthdate');
+            $table->dropSoftDeletes();
+        });
     }
 };
