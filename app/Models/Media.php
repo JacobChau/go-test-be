@@ -11,6 +11,18 @@ class Media extends Model
 {
     use HasFactory, SoftDeletes;
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'url',
+        'type',
+        'mediable_id',
+        'mediable_type',
+    ];
+
     public function mediable(): MorphTo
     {
         return $this->morphTo();
