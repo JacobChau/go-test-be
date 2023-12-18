@@ -22,7 +22,7 @@ class StoreUserRequest extends ApiFormRequest
     protected function prepareForValidation(): void
     {
         $this->merge([
-            'role' => UserRole::coerce($this->role) ?? $this->route('user')->role,
+            'role' => UserRole::coerce($this->role) ?? UserRole::coerce(UserRole::Student)
         ]);
     }
 

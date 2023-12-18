@@ -49,7 +49,7 @@ class BaseService
     /**
      * @throws ReflectionException
      */
-    public function getList(array $input = [], Builder $query = null, array $relations = [], string $resourceClass = null): array
+    public function getList(string $resourceClass = null, array $input = [], Builder $query = null, array $relations = []): array
     {
         if ($resourceClass && ! class_exists($resourceClass)) {
             throw new \InvalidArgumentException("Invalid resource class: $resourceClass");
@@ -66,9 +66,21 @@ class BaseService
             }
         }
 
-        $result = $query->orderBy($orderBy, $orderDirection)->paginate($perPage);
+        if (!is_string($orderBy)) {
+            if (is_array($orderBy)) {
+                $query->orderBy(...$orderBy);
+            }
+            else {
+                throw new \InvalidArgumentException("orderBy must be a string or an array, " . gettype($orderBy) . " given");
+            };
+        } else {
+            $query->orderBy($orderBy, $orderDirection);
+        }
+
+        $result = $query->paginate($perPage);
 
         $items = $result->getCollection();
+
         if ($resourceClass) {
             // Ensure the class is a subclass of JsonApiResource
             $reflectionClass = new ReflectionClass($resourceClass);

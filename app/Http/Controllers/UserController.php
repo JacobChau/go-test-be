@@ -29,7 +29,7 @@ class UserController extends Controller
             $relations = explode(',', request()->get('include'));
         }
 
-        $users = $this->userService->getList(request()->all(), null, $relations, UserResource::class);
+        $users = $this->userService->getList(UserResource::class, request()->all(), null, $relations);
 
         return $this->sendResponse($users, 'Users retrieved successfully');
     }

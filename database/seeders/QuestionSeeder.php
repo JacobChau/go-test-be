@@ -4,8 +4,10 @@ namespace Database\Seeders;
 
 use App\Enums\MediaType;
 use App\Enums\QuestionType;
+use App\Models\Media;
 use App\Models\Passage;
 use App\Models\Question;
+use App\Models\QuestionCategory;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
@@ -21,6 +23,11 @@ class QuestionSeeder extends Seeder
 
     private function seedToeicQuestions(): void
     {
+        $category = QuestionCategory::create([
+            'name' => 'English',
+            'description' => 'English questions',
+        ]);
+
         $userId = User::all()->random()->id;
         $passage = Passage::create([
             'content' => 'Read the following passage and answer the questions that follow.',
@@ -31,6 +38,7 @@ class QuestionSeeder extends Seeder
             'type' => QuestionType::MultipleChoice,
             'is_published' => true,
             'passage_id' => $passage->id,
+            'category_id' => $category->id,
             'created_by' => $userId,
         ]);
 
@@ -58,6 +66,7 @@ class QuestionSeeder extends Seeder
             'type' => QuestionType::MultipleChoice,
             'is_published' => true,
             'passage_id' => $passage->id,
+            'category_id' => $category->id,
             'created_by' => $userId,
         ]);
 
@@ -85,6 +94,7 @@ class QuestionSeeder extends Seeder
             'type' => QuestionType::MultipleChoice,
             'is_published' => true,
             'passage_id' => $passage->id,
+            'category_id' => $category->id,
             'created_by' => $userId,
         ]);
 
@@ -112,6 +122,7 @@ class QuestionSeeder extends Seeder
             'type' => QuestionType::MultipleChoice,
             'is_published' => true,
             'passage_id' => $passage->id,
+            'category_id' => $category->id,
             'created_by' => $userId,
         ]);
 
@@ -139,6 +150,7 @@ class QuestionSeeder extends Seeder
             'type' => QuestionType::MultipleChoice,
             'is_published' => true,
             'passage_id' => $passage->id,
+            'category_id' => $category->id,
             'created_by' => $userId,
         ]);
 
@@ -161,15 +173,22 @@ class QuestionSeeder extends Seeder
             ],
         ]);
 
+
         $question6 = Question::create([
             'content' => 'The _______ of the TOEIC test is to measure English proficiency.',
             'type' => QuestionType::FillIn,
-            'media_url' => 'https://www.ets.org/toeic/images/TOEIC_Logo_Stacked_White.png',
-            'media_type' => MediaType::Image,
             'is_published' => true,
             'passage_id' => $passage->id,
+            'category_id' => $category->id,
             'created_by' => $userId,
         ]);
+
+        $mediaForQuestion6 = new Media([
+            'url' => 'https://www.ets.org/toeic/images/TOEIC_Logo_Stacked_White.png',
+            'type' => MediaType::Image,
+        ]);
+
+        $question6->media()->save($mediaForQuestion6);
 
         $question6->options()->create([
             'answer' => 'purpose',
@@ -179,12 +198,13 @@ class QuestionSeeder extends Seeder
         $question7 = Question::create([
             'content' => 'The TOEIC test is administered by ___.',
             'type' => QuestionType::FillIn,
-            'media_url' => 'https://www.ets.org/toeic/images/TOEIC_Logo_Stacked_White.png',
-            'media_type' => MediaType::Image,
             'is_published' => true,
             'passage_id' => $passage->id,
+            'category_id' => $category->id,
             'created_by' => $userId,
         ]);
+
+        $question7->media()->save($mediaForQuestion6);
 
         $question7->options()->create([
             'answer' => 'ETS',
@@ -194,12 +214,13 @@ class QuestionSeeder extends Seeder
         $question8 = Question::create([
             'content' => 'The rate of growth of the TOEIC test in Japan is ___.',
             'type' => QuestionType::FillIn,
-            'media_url' => 'https://www.ets.org/toeic/images/TOEIC_Logo_Stacked_White.png',
-            'media_type' => MediaType::Image,
             'is_published' => true,
             'passage_id' => $passage->id,
+            'category_id' => $category->id,
             'created_by' => $userId,
         ]);
+
+        $question8->media()->save($mediaForQuestion6);
 
         $question8->options()->create([
             'answer' => 'rapid',
@@ -213,33 +234,45 @@ class QuestionSeeder extends Seeder
         $question9 = Question::create([
             'content' => 'The rapid _________ of technology has transformed various aspects of our lives.',
             'type' => QuestionType::FillIn,
-            'media_url' => 'https://www.ets.org/toeic/images/TOEIC_Logo_Stacked_White.png',
-            'media_type' => MediaType::Image,
             'is_published' => true,
             'passage_id' => $passage->id,
+            'category_id' => $category->id,
             'created_by' => $userId,
         ]);
+
+        $question9->media()->save($mediaForQuestion6);
 
         $question9->options()->create([
             'answer' => 'advancement',
             'is_correct' => true,
         ]);
 
+
+        $mediaForExplanationQuestion9 = new Media([
+            'url' => 'https://www.ets.org/toeic/images/TOEIC_Logo_Stacked_White.png',
+            'type' => MediaType::Image,
+        ]);
         $question9->explanation()->create([
             'content' => 'The rapid advancement of technology has transformed various aspects of our lives.',
-            'media_url' => 'https://www.ets.org/toeic/images/TOEIC_Logo_Stacked_White.png',
-            'media_type' => MediaType::Image,
         ]);
+
+        $question9->explanation->media()->save($mediaForExplanationQuestion9);
 
         $question10 = Question::create([
             'content' => 'The TOEIC test is used by more than 14,000 companies in ___ countries.',
             'type' => QuestionType::FillIn,
-            'media_url' => 'https://www.ets.org/toeic/images/TOEIC_Logo_Stacked_White.png',
-            'media_type' => MediaType::Image,
             'is_published' => true,
             'passage_id' => $passage->id,
+            'category_id' => $category->id,
             'created_by' => $userId,
         ]);
+
+        $mediaForQuestion10 = new Media([
+            'url' => 'https://www.ets.org/toeic/images/TOEIC_Logo_Stacked_White.png',
+            'type' => MediaType::Image,
+        ]);
+
+        $question10->media()->save($mediaForQuestion10);
 
         $question10->options()->create([
             'answer' => '150',
@@ -252,41 +285,46 @@ class QuestionSeeder extends Seeder
 
         $question11 = Question::create([
             'content' => 'What is the main topic of the passage?',
-            'type' => QuestionType::TextAnswer,
+            'type' => QuestionType::Text,
             'is_published' => true,
             'passage_id' => $passage->id,
+            'category_id' => $category->id,
             'created_by' => $userId,
         ]);
 
         $question12 = Question::create([
             'content' => 'What is the TOEIC test?',
-            'type' => QuestionType::TextAnswer,
+            'type' => QuestionType::Text,
             'is_published' => true,
             'passage_id' => $passage->id,
+            'category_id' => $category->id,
             'created_by' => $userId,
         ]);
 
         $question13 = Question::create([
             'content' => 'When was the TOEIC test first administered?',
-            'type' => QuestionType::TextAnswer,
+            'type' => QuestionType::Text,
             'is_published' => true,
             'passage_id' => $passage->id,
+            'category_id' => $category->id,
             'created_by' => $userId,
         ]);
 
         $question14 = Question::create([
             'content' => 'What is the TOEIC test used for?',
-            'type' => QuestionType::TextAnswer,
+            'type' => QuestionType::Text,
             'is_published' => true,
             'passage_id' => $passage->id,
+            'category_id' => $category->id,
             'created_by' => $userId,
         ]);
 
         $question15 = Question::create([
             'content' => 'What is the main topic of the passage?',
-            'type' => QuestionType::TextAnswer,
+            'type' => QuestionType::Text,
             'is_published' => true,
             'passage_id' => $passage->id,
+            'category_id' => $category->id,
             'created_by' => $userId,
         ]);
 
@@ -299,6 +337,7 @@ class QuestionSeeder extends Seeder
             'type' => QuestionType::MultipleAnswer,
             'is_published' => true,
             'passage_id' => $passage->id,
+            'category_id' => $category->id,
             'created_by' => $userId,
         ]);
 
@@ -330,6 +369,7 @@ class QuestionSeeder extends Seeder
             'type' => QuestionType::MultipleAnswer,
             'is_published' => true,
             'passage_id' => $passage->id,
+            'category_id' => $category->id,
             'created_by' => $userId,
         ]);
 
@@ -361,6 +401,7 @@ class QuestionSeeder extends Seeder
             'type' => QuestionType::MultipleAnswer,
             'is_published' => true,
             'passage_id' => $passage->id,
+            'category_id' => $category->id,
             'created_by' => $userId,
         ]);
 
@@ -389,6 +430,7 @@ class QuestionSeeder extends Seeder
             'type' => QuestionType::MultipleAnswer,
             'is_published' => true,
             'passage_id' => $passage->id,
+            'category_id' => $category->id,
             'created_by' => $userId,
         ]);
 
@@ -420,6 +462,7 @@ class QuestionSeeder extends Seeder
             'type' => QuestionType::MultipleAnswer,
             'is_published' => true,
             'passage_id' => $passage->id,
+            'category_id' => $category->id,
             'created_by' => $userId,
         ]);
 
@@ -455,108 +498,165 @@ class QuestionSeeder extends Seeder
             'type' => QuestionType::MultipleAnswer,
             'is_published' => true,
             'passage_id' => $passage->id,
+            'category_id' => $category->id,
             'created_by' => $userId,
         ]);
 
-        $question21->options()->createMany([
+        $optionsDataQuestion21 = [
             [
-                'media_url' => 'https://www.ets.org/toeic/images/dog2.jpg',
                 'is_correct' => true,
             ],
             [
-                'media_url' => 'https://www.ets.org/toeic/images/dog.jpg',
                 'is_correct' => true,
             ],
             [
-                'media_url' => 'https://www.ets.org/toeic/images/cat.jpg',
                 'is_correct' => false,
             ],
             [
-                'media_url' => 'https://www.ets.org/toeic/images/TOEIC_Logo_Stacked_White.png',
                 'is_correct' => false,
             ],
-        ]);
+        ];
+
+        $optionsQuestion21 = $question21->options()->createMany($optionsDataQuestion21);
+
+        $mediaUrlsQuestion21 = [
+            'https://www.ets.org/toeic/images/dog2.jpg',
+            'https://www.ets.org/toeic/images/dog.jpg',
+            'https://www.ets.org/toeic/images/cat.jpg',
+            'https://www.ets.org/toeic/images/TOEIC_Logo_Stacked_White.png',
+        ];
+
+        foreach ($optionsQuestion21 as $index => $option) {
+            $media = new Media([
+                'url' => $mediaUrlsQuestion21[$index],
+                'type' => MediaType::Image,
+            ]);
+            $option->media()->save($media);
+        }
 
         $question22 = Question::create([
             'content' => 'Choose the images that best describe the cat.',
             'type' => QuestionType::MultipleAnswer,
             'is_published' => true,
             'passage_id' => $passage->id,
+            'category_id' => $category->id,
             'created_by' => $userId,
         ]);
 
-        $question22->options()->createMany([
+        $optionsDataQuestion22 = [
             [
-                'media_url' => 'https://www.ets.org/toeic/images/dog2.jpg',
                 'is_correct' => false,
             ],
             [
-                'media_url' => 'https://www.ets.org/toeic/images/dog.jpg',
                 'is_correct' => false,
             ],
             [
-                'media_url' => 'https://www.ets.org/toeic/images/cat.jpg',
                 'is_correct' => true,
             ],
             [
-                'media_url' => 'https://www.ets.org/toeic/images/TOEIC_Logo_Stacked_White.png',
                 'is_correct' => false,
             ],
-        ]);
+        ];
+
+        $optionsQuestion22 = $question22->options()->createMany($optionsDataQuestion22);
+
+        $mediaUrlsQuestion22 = [
+            'https://www.ets.org/toeic/images/dog2.jpg',
+            'https://www.ets.org/toeic/images/dog.jpg',
+            'https://www.ets.org/toeic/images/cat.jpg',
+            'https://www.ets.org/toeic/images/TOEIC_Logo_Stacked_White.png',
+        ];
+
+        foreach ($optionsQuestion22 as $index => $option) {
+            $media = new Media([
+                'url' => $mediaUrlsQuestion22[$index],
+                'type' => MediaType::Image,
+            ]);
+            $option->media()->save($media);
+        }
 
         $question23 = Question::create([
             'content' => 'Choose the images that best describe the house.',
             'type' => QuestionType::MultipleAnswer,
             'is_published' => true,
             'passage_id' => $passage->id,
+            'category_id' => $category->id,
             'created_by' => $userId,
         ]);
 
-        $question23->options()->createMany([
+        $optionsDataQuestion23 = [
             [
-                'media_url' => 'https://www.ets.org/toeic/images/dog2.jpg',
                 'is_correct' => false,
             ],
             [
-                'media_url' => 'https://www.ets.org/toeic/images/dog.jpg',
                 'is_correct' => false,
             ],
             [
-                'media_url' => 'https://www.ets.org/toeic/images/cat.jpg',
                 'is_correct' => false,
             ],
             [
-                'media_url' => 'https://www.ets.org/toeic/images/house.jpg',
                 'is_correct' => true,
             ],
-        ]);
+        ];
+
+        $optionsQuestion23 = $question23->options()->createMany($optionsDataQuestion23);
+
+        $mediaUrlsQuestion23 = [
+            'https://www.ets.org/toeic/images/dog2.jpg',
+            'https://www.ets.org/toeic/images/dog.jpg',
+            'https://www.ets.org/toeic/images/cat.jpg',
+            'https://www.ets.org/toeic/images/house.jpg',
+        ];
+
+        foreach ($optionsQuestion23 as $index => $option) {
+            $media = new Media([
+                'url' => $mediaUrlsQuestion23[$index],
+                'type' => MediaType::Image,
+            ]);
+            $option->media()->save($media);
+        }
+
 
         $question24 = Question::create([
             'content' => 'Choose the images that best describe the car.',
             'type' => QuestionType::MultipleChoice,
             'is_published' => true,
             'passage_id' => $passage->id,
+            'category_id' => $category->id,
             'created_by' => $userId,
         ]);
 
-        $question24->options()->createMany([
+        $optionsDataQuestion24 = [
             [
-                'media_url' => 'https://www.ets.org/toeic/images/dog2.jpg',
                 'is_correct' => false,
             ],
             [
-                'media_url' => 'https://www.ets.org/toeic/images/dog.jpg',
                 'is_correct' => false,
             ],
             [
-                'media_url' => 'https://www.ets.org/toeic/images/cat.jpg',
                 'is_correct' => false,
             ],
             [
-                'media_url' => 'https://www.ets.org/toeic/images/car.jpg',
                 'is_correct' => true,
             ],
-        ]);
+        ];
+
+        $optionsQuestion24 = $question24->options()->createMany($optionsDataQuestion24);
+
+        $mediaUrlsQuestion24 = [
+            'https://www.ets.org/toeic/images/dog2.jpg',
+            'https://www.ets.org/toeic/images/dog.jpg',
+            'https://www.ets.org/toeic/images/cat.jpg',
+            'https://www.ets.org/toeic/images/car.jpg',
+        ];
+
+        foreach ($optionsQuestion24 as $index => $option) {
+            $media = new Media([
+                'url' => $mediaUrlsQuestion24[$index],
+                'type' => MediaType::Image,
+            ]);
+            $option->media()->save($media);
+        }
 
         $passage = Passage::create([
             'content' => 'Listen to the following audio and answer the questions that follow.',
@@ -565,13 +665,18 @@ class QuestionSeeder extends Seeder
         $question25 = Question::create([
             'content' => 'What is the main topic of the audio?',
             'type' => QuestionType::MultipleChoice,
-            'media_url' => 'https://www.ets.org/toeic/listening/mp3/Part1_1.mp3',
-            'media_type' => MediaType::Audio,
             'is_published' => true,
             'passage_id' => $passage->id,
+            'category_id' => $category->id,
             'created_by' => $userId,
         ]);
 
+        $mediaForQuestion25 = new Media([
+            'url' => 'https://www.ets.org/toeic/images/TOEIC_Logo_Stacked_White.png',
+            'type' => MediaType::Image,
+        ]);
+
+        $question25->media()->save($mediaForQuestion25);
         $question25->options()->createMany([
             [
                 'answer' => 'The weather',
@@ -594,12 +699,20 @@ class QuestionSeeder extends Seeder
         $question26 = Question::create([
             'content' => 'What is the main topic of the audio?',
             'type' => QuestionType::MultipleChoice,
-            'media_url' => 'https://www.ets.org/toeic/listening/mp3/Part1_2.mp3',
-            'media_type' => MediaType::Audio,
+//            'url' => 'https://www.ets.org/toeic/listening/mp3/Part1_2.mp3',
+//            'type' => MediaType::Audio,
             'is_published' => true,
             'passage_id' => $passage->id,
+            'category_id' => $category->id,
             'created_by' => $userId,
         ]);
+
+        $mediaForQuestion26 = new Media([
+            'url' => 'https://www.ets.org/toeic/listening/mp3/Part1_2.mp3',
+            'type' => MediaType::Audio,
+        ]);
+
+        $question26->media()->save($mediaForQuestion26);
 
         $question26->options()->createMany([
             [
@@ -623,12 +736,18 @@ class QuestionSeeder extends Seeder
         $question27 = Question::create([
             'content' => 'What is he going to do?',
             'type' => QuestionType::MultipleChoice,
-            'media_url' => 'https://www.ets.org/toeic/listening/mp3/Part1_3.mp3',
-            'media_type' => MediaType::Audio,
             'is_published' => true,
             'passage_id' => $passage->id,
+            'category_id' => $category->id,
             'created_by' => $userId,
         ]);
+
+        $mediaForQuestion27 = new Media([
+            'url' => 'https://www.ets.org/toeic/listening/mp3/Part1_3.mp3',
+            'type' => MediaType::Audio,
+        ]);
+
+        $question27->media()->save($mediaForQuestion27);
 
         $question27->options()->createMany([
             [
@@ -656,12 +775,18 @@ class QuestionSeeder extends Seeder
         $question28 = Question::create([
             'content' => 'What is the main topic of the video?',
             'type' => QuestionType::MultipleChoice,
-            'media_url' => 'https://www.ets.org/toeic/videos/Part1_1.mp4',
-            'media_type' => MediaType::Video,
             'is_published' => true,
             'passage_id' => $passage->id,
+            'category_id' => $category->id,
             'created_by' => $userId,
         ]);
+
+        $mediaForQuestion28 = new Media([
+            'url' => 'https://www.ets.org/toeic/videos/Part1_1.mp4',
+            'type' => MediaType::Video,
+        ]);
+
+        $question28->media()->save($mediaForQuestion28);
 
         $question28->options()->createMany([
             [
@@ -685,12 +810,18 @@ class QuestionSeeder extends Seeder
         $question29 = Question::create([
             'content' => 'What is the main topic of the video?',
             'type' => QuestionType::MultipleChoice,
-            'media_url' => 'https://www.ets.org/toeic/videos/Part1_2.mp4',
-            'media_type' => MediaType::Video,
             'is_published' => true,
             'passage_id' => $passage->id,
+            'category_id' => $category->id,
             'created_by' => $userId,
         ]);
+
+        $mediaForQuestion29 = new Media([
+            'url' => 'https://www.ets.org/toeic/videos/Part1_2.mp4',
+            'type' => MediaType::Video,
+        ]);
+
+        $question29->media()->save($mediaForQuestion29);
 
         $question29->options()->createMany([
             [
@@ -720,10 +851,16 @@ class QuestionSeeder extends Seeder
             'type' => QuestionType::TrueFalse,
             'is_published' => true,
             'passage_id' => $passage->id,
+            'category_id' => $category->id,
             'created_by' => $userId,
-            'media_url' => 'https://www.ets.org/toeic/images/TOEIC_Logo_Stacked_White.png',
-            'media_type' => MediaType::Image,
         ]);
+
+        $mediaForQuestion30 = new Media([
+            'url' => 'https://www.ets.org/toeic/images/TOEIC_Logo_Stacked_White.png',
+            'type' => MediaType::Image,
+        ]);
+
+        $question30->media()->save($mediaForQuestion30);
 
         $question30->options()->createMany([
             [
@@ -745,10 +882,16 @@ class QuestionSeeder extends Seeder
             'type' => QuestionType::TrueFalse,
             'is_published' => true,
             'passage_id' => $passage->id,
+            'category_id' => $category->id,
             'created_by' => $userId,
-            'media_url' => 'https://www.ets.org/toeic/images/TOEIC_Logo_Stacked_White.png',
-            'media_type' => MediaType::Image,
         ]);
+
+        $mediaForQuestion31 = new Media([
+            'url' => 'https://www.ets.org/toeic/images/TOEIC_Logo_Stacked_White.png',
+            'type' => MediaType::Image,
+        ]);
+
+        $question31->media()->save($mediaForQuestion31);
 
         $question31->options()->createMany([
             [

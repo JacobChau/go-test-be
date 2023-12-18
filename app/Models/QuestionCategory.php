@@ -2,17 +2,19 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Subject extends Model
+class QuestionCategory extends Model
 {
-    use SoftDeletes;
+    use HasFactory, SoftDeletes;
+
     protected $fillable = ['name', 'description'];
 
-    public function assessments(): HasMany
+    public function questions(): HasMany
     {
-        return $this->hasMany(Assessment::class);
+        return $this->hasMany(Question::class);
     }
 }

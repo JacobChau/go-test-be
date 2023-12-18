@@ -82,6 +82,11 @@ class User extends Authenticatable implements MustVerifyEmail, JWTSubject
         return $this->hasAnyRole([UserRole::Admin]);
     }
 
+    public function isTeacher(): bool
+    {
+        return $this->hasAnyRole([UserRole::Teacher]);
+    }
+
     /**
      * Send the queued email verification notification.
      *
