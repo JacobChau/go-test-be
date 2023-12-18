@@ -21,17 +21,16 @@ class QuestionOptionService extends BaseService
      * Create question options.
      *
      * @param array $options
-     * @param int $questionId
      */
-    public function createOptions(array $options, int $questionId): void
+    public function createOptions(array $options): void
     {
         foreach ($options as $option) {
-            $this->mediaService->processImages($option['answer'], $questionId, QuestionOption::class);
-            $this->create([
+            $option = $this->create([
                 'answer' => $option['answer'],
                 'is_correct' => $option['isCorrect'],
-                'question_id' => $questionId,
             ]);
+
+            $this->mediaService->processImages($option->answer, $option->id, QuestionOption::class);
         }
     }
 }

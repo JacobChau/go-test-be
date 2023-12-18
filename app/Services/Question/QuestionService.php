@@ -67,7 +67,7 @@ class QuestionService extends BaseService
         }
 
         if (isset($data['options']) && count($data['options']) > 0) {
-            $this->optionService->createOptions($data['options'], $question->id);
+            $this->optionService->createOptions($data['options']);
         }
 
         return $question;

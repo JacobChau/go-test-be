@@ -25,11 +25,12 @@ class QuestionExplanationService extends BaseService
      */
     public function createExplanation(string $explanation, int $questionId): void
     {
-        $this->mediaService->processImages($explanation, $questionId, QuestionExplanation::class);
-
-        $this->create([
+        $explanation = $this->create([
             'content' => $explanation,
             'question_id' => $questionId,
         ]);
+
+        $this->mediaService->processImages($explanation->content, $explanation->id, QuestionExplanation::class);
+
     }
 }
