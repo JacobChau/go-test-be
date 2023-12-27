@@ -2,12 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\UploadService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class UploadController extends Controller
 {
+    protected UploadService $uploadService;
+
+    public function __construct(UploadService $uploadService)
+    {
+        $this->uploadService = $uploadService;
+    }
+
     public function upload(Request $request): JsonResponse
     {
         $request->validate([

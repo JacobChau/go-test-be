@@ -6,6 +6,7 @@ use App\Enums\PaginationSetting;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Resources\Json\JsonResource;
+use InvalidArgumentException;
 use ReflectionClass;
 use ReflectionException;
 use TiMacDonald\JsonApi\JsonApiResource;
@@ -46,16 +47,23 @@ class BaseService
         return $this->model->firstOrCreate($conditions, $data);
     }
 
+    public function getModel(): Model
+    {
+        return $this->model;
+    }
+
     /**
      * @throws ReflectionException
      */
     public function getList(string $resourceClass = null, array $input = [], Builder $query = null, array $relations = []): array
     {
         if ($resourceClass && ! class_exists($resourceClass)) {
-            throw new \InvalidArgumentException("Invalid resource class: $resourceClass");
+            throw new InvalidArgumentException("Invalid resource class: $resourceClass");
         }
 
         $query = $query ?? $this->model->query();
+        $this->addSearchParam($query, $input);
+
         $perPage = (int) ($input['perPage'] ?? PaginationSetting::PER_PAGE);
         $orderBy = $input['orderBy'] ?? PaginationSetting::ORDER_BY;
         $orderDirection = $input['orderDir'] ?? PaginationSetting::ORDER_DIRECTION;
@@ -71,8 +79,8 @@ class BaseService
                 $query->orderBy(...$orderBy);
             }
             else {
-                throw new \InvalidArgumentException("orderBy must be a string or an array, " . gettype($orderBy) . " given");
-            };
+                throw new InvalidArgumentException("orderBy must be a string or an array, " . gettype($orderBy) . " given");
+            }
         } else {
             $query->orderBy($orderBy, $orderDirection);
         }
@@ -85,7 +93,7 @@ class BaseService
             // Ensure the class is a subclass of JsonApiResource
             $reflectionClass = new ReflectionClass($resourceClass);
             if (! $reflectionClass->isSubclassOf(JsonApiResource::class) && ! $reflectionClass->isSubclassOf(JsonResource::class)) {
-                throw new \InvalidArgumentException("Invalid resource class: $resourceClass. It must be a subclass of JsonResource.");
+                throw new InvalidArgumentException("Invalid resource class: $resourceClass. It must be a subclass of JsonResource.");
             }
 
             $items = $resourceClass::collection($items);
@@ -101,5 +109,39 @@ class BaseService
                 'path' => $result->path(),
             ],
         ];
+    }
+
+    public function addSearchParam(Builder $query, array $params): void
+    {
+        $searchType = $params['searchType'] ?? null;
+        $searchColumn = $params['searchColumn'] ?? null;
+        $searchKeyword = $params['searchKeyword'] ?? null;
+
+        if (! $searchType || ! $searchColumn || ! $searchKeyword) {
+            return;
+        }
+
+        if (str_contains($searchColumn, '.')) {
+            $searchColumn = explode('.', $searchColumn);
+            $query->whereHas($searchColumn[0], function ($query) use ($searchType, $searchColumn, $searchKeyword) {
+                $this->applySearchType($query, $searchType, $searchColumn[1], $searchKeyword);
+            });
+        } else {
+            $this->applySearchType($query, $searchType, $searchColumn, $searchKeyword);
+        }
+    }
+
+    private function applySearchType(Builder $query, string $searchType, string $column, $keyword): void
+    {
+        switch ($searchType) {
+            case 'Equal':
+                $query->where($column, '=', $keyword);
+                break;
+            case 'Contain':
+                $query->where($column, 'LIKE', "%$keyword%");
+                break;
+            default:
+                break;
+        }
     }
 }

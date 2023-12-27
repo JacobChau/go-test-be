@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\QuestionType;
 use App\Traits\HasCreatedBy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -45,5 +46,24 @@ class Question extends Model
     public function media(): MorphMany
     {
         return $this->morphMany(Media::class, 'mediable');
+    }
+
+    // ------------------ Scopes ------------------
+    public function scopeCategory($query, $category_id)
+    {
+        if (! $category_id) {
+            return $query;
+        }
+
+        return $query->where('category_id', $category_id);
+    }
+
+    public function scopeType($query, $type)
+    {
+        if (! $type && $type !== 0) {
+            return $query;
+        }
+
+        return $query->where('type', $type);
     }
 }

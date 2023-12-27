@@ -31,7 +31,7 @@ class UserResource extends JsonApiResource
             'avatar' => $this->avatar,
             'role' => $this->role ? UserRole::getKey($this->role) : UserRole::getKey(UserRole::Student),
             'birthdate' => $this->birthdate,
-            'emailVerifiedAt' => $request->user() && ($this->when($request->user()->isAdmin(), $this->email_verified_at)),
+            'emailVerifiedAt' => $this->when($request->user()->isAdmin(), $this->email_verified_at),
         ];
     }
 }

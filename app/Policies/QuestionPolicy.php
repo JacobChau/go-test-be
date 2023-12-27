@@ -17,7 +17,6 @@ class QuestionPolicy
      */
     public function update(User $user, Question $model): Response
     {
-        var_dump($model);
         return $user->isAdmin() || $user->isTeacher() || $user->is($model->createdBy) ? Response::allow() : Response::deny('You do not have permission to update this question.');
     }
 

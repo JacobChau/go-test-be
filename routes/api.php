@@ -4,6 +4,7 @@ use App\Enums\UserRole;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\VerificationController;
+use App\Http\Controllers\Group\GroupController;
 use App\Http\Controllers\PassageController;
 use App\Http\Controllers\Question\QuestionCategoryController;
 use App\Http\Controllers\Question\QuestionController;
@@ -48,6 +49,18 @@ Route::middleware('api')->group(function () {
             Route::post('/email/resend', 'resend')->name('resend');
         });
     });
+});
+
+Route::middleware(['api', 'auth'])->group(function () {
+    // AUTHENTICATION ROUTES
+    Route::prefix('auth')->name('auth.')->group(function () {
+        // AuthController routes
+        Route::controller(AuthController::class)->group(function () {
+            Route::get('/me', 'me')->name('me');
+            Route::get('/refresh', 'refresh')->name('refresh');
+            Route::post('/logout', 'logout')->name('logout');
+        });
+    });
 
     // USER ROUTES
     Route::prefix('users')->name('users.')->controller(UserController::class)->group(function () {
@@ -77,6 +90,12 @@ Route::middleware('api')->group(function () {
     Route::prefix('categories')->name('categories.')->controller(QuestionCategoryController::class)->group(function () {
         Route::get('/', 'index')->name('index');
         Route::get('/{category}', 'show')->name('show');
+    });
+
+    // GROUP ROUTES
+    Route::prefix('groups')->name('groups.')->controller(GroupController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/{group}', 'show')->name('show');
     });
 });
 

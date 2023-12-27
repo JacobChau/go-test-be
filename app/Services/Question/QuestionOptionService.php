@@ -33,7 +33,29 @@ class QuestionOptionService extends BaseService
                 'question_id' => $questionId,
             ]);
 
-            $this->mediaService->processImages($option->answer, $option->id, QuestionOption::class);
+            $this->mediaService->processAndSaveImages($option->answer, $option->id, QuestionOption::class);
+        }
+    }
+
+    public function updateOrCreateOptions(array $options, int $questionId): void
+    {
+        foreach ($options as $option) {
+            $option = $this->model->updateOrCreate([
+                'id' => $option['id'],
+                'question_id' => $questionId,
+            ], [
+                'answer' => $option['answer'],
+                'is_correct' => $option['isCorrect'],
+            ]);
+
+            $this->mediaService->syncContentImages($option->answer, $option->id, QuestionOption::class);
+        }
+    }
+
+    public function deleteOptions(array $options): void
+    {
+        foreach ($options as $option) {
+            $this->delete($option['id']);
         }
     }
 }
