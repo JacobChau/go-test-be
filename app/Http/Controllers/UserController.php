@@ -29,7 +29,7 @@ class UserController extends Controller
             $relations = explode(',', request()->get('include'));
         }
 
-        $users = $this->userService->getList(request()->all(), null, $relations, UserResource::class);
+        $users = $this->userService->getList(UserResource::class, request()->all(), null, $relations);
 
         return $this->sendResponse($users, 'Users retrieved successfully');
     }
@@ -51,7 +51,7 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id): JsonResponse
+    public function show(int $id): JsonResponse
     {
         $relations = [];
         if (request()->has('include')) {

@@ -20,11 +20,6 @@ class UserService extends BaseService
         return $this->getList($query);
     }
 
-    public function getModel(): User
-    {
-        return $this->model;
-    }
-
     public function getByEmail(string $email): User | null
     {
         return $this->model->query()->email($email)->first();
