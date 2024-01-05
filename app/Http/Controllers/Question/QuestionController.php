@@ -3,18 +3,17 @@
 namespace App\Http\Controllers\Question;
 
 use App\Enums\QuestionType;
-use App\Http\Requests\UpdateQuestionRequest;
-use App\Http\Resources\QuestionDetailResource;
-use App\Models\Question;
-use Exception;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Str;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreQuestionRequest;
+use App\Http\Requests\UpdateQuestionRequest;
+use App\Http\Resources\QuestionDetailResource;
 use App\Http\Resources\QuestionResource;
+use App\Models\Question;
 use App\Services\Question\QuestionService;
+use Exception;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class QuestionController extends Controller
 {
@@ -37,6 +36,7 @@ class QuestionController extends Controller
 
     /**
      * Store a newly created resource in storage.
+     *
      * @throws Exception
      */
     public function store(StoreQuestionRequest $request): JsonResponse
@@ -62,6 +62,7 @@ class QuestionController extends Controller
 
     /**
      * Update the specified resource in storage.
+     *
      * @throws Exception
      */
     public function update(UpdateQuestionRequest $request, Question $question): JsonResponse
@@ -74,20 +75,10 @@ class QuestionController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(string $id) : JsonResponse
     {
-        //
-    }
+        $this->questionService->delete($id);
 
-    private function applyFilters(Builder $query, array $filters): void
-    {
-        foreach ($filters as $scope => $value) {
-            if ($scope === 'type') {
-                $value = QuestionType::getValue($value);
-            }
-
-            $scope = Str::camel($scope);
-            $query = $query->$scope($value);
-        }
+        return $this->sendResponse(null, 'Question deleted successfully.');
     }
 }

@@ -55,7 +55,7 @@ class BaseService
     /**
      * @throws ReflectionException
      */
-    public function getList(string $resourceClass = null, array $input = [], Builder $query = null, array $relations = []): array
+    public function getList(?string $resourceClass = null, array $input = [], ?Builder $query = null, array $relations = []): array
     {
         if ($resourceClass && ! class_exists($resourceClass)) {
             throw new InvalidArgumentException("Invalid resource class: $resourceClass");
@@ -74,12 +74,11 @@ class BaseService
             }
         }
 
-        if (!is_string($orderBy)) {
+        if (! is_string($orderBy)) {
             if (is_array($orderBy)) {
                 $query->orderBy(...$orderBy);
-            }
-            else {
-                throw new InvalidArgumentException("orderBy must be a string or an array, " . gettype($orderBy) . " given");
+            } else {
+                throw new InvalidArgumentException('orderBy must be a string or an array, '.gettype($orderBy).' given');
             }
         } else {
             $query->orderBy($orderBy, $orderDirection);

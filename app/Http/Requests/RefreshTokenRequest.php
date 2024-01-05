@@ -1,19 +1,16 @@
 <?php
 
-namespace App\Http\Requests;
+namespace app\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Gate;
 
-class UpdateSubjectRequest extends FormRequest
+class RefreshTokenRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        Gate::authorize('update', $this->route('subject'));
-
         return true;
     }
 
@@ -25,8 +22,7 @@ class UpdateSubjectRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'string',
-            'description' => 'string',
+            'refreshToken' => 'required|string',
         ];
     }
 }

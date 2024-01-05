@@ -29,4 +29,3 @@ class Assessment extends Model
         return $this->hasMany(AssessmentAttempt::class);
     }
 }
-

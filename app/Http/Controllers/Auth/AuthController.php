@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginGoogleRequest;
 use App\Http\Requests\LoginRequest;
+use App\Http\Requests\RefreshTokenRequest;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Resources\UserResource;
 use App\Services\AuthService;
@@ -16,9 +17,11 @@ use Symfony\Component\HttpFoundation\Response;
 class AuthController extends Controller
 {
     protected UserService $userService;
+
     protected AuthService $authService;
 
-    public function __construct(UserService $userService, AuthService $authService) {
+    public function __construct(UserService $userService, AuthService $authService)
+    {
         $this->userService = $userService;
         $this->authService = $authService;
     }
@@ -26,7 +29,7 @@ class AuthController extends Controller
     /**
      * Register user
      */
-    public function register(StoreUserRequest $request) : JsonResponse
+    public function register(StoreUserRequest $request): JsonResponse
     {
         $user = $this->userService->create($request->validated());
 
@@ -44,24 +47,23 @@ class AuthController extends Controller
      */
     public function login(LoginRequest $request): JsonResponse
     {
-        $token = $this->authService->login($request->validated());
+        $response = $this->authService->login($request->validated());
 
-        if (! $token) {
+        if (! $response) {
             return response()->json([
-                'message' => 'Invalid credentials'
+                'message' => 'Invalid credentials',
             ], Response::HTTP_UNAUTHORIZED);
         }
 
         return $this->sendResponse([
             'user' => new UserResource(auth()->user()),
-            'accessToken' => $token,
+            'accessToken' => $response['accessToken'],
+            'refreshToken' => $response['refreshToken'],
         ], 'User logged in successfully');
     }
 
     /**
      * Get the authenticated User.
-     *
-     * @return JsonResponse
      */
     public function me(): JsonResponse
     {
@@ -70,24 +72,34 @@ class AuthController extends Controller
 
     /**
      * Refresh a token.
-     *
-     * @return JsonResponse
      */
-    public function refresh(): JsonResponse
+    public function refresh(RefreshTokenRequest $request): JsonResponse
     {
+        $response = $this->authService->refreshToken($request->validated()['refreshToken']);
+
+        if (! $response) {
+            return $this->sendResponse(
+                null,
+                'Invalid token',
+                Response::HTTP_UNAUTHORIZED
+            );
+        }
+
         return $this->sendResponse([
-            'accessToken' => auth()->refresh(),
+            'accessToken' => $response['accessToken'],
+            'refreshToken' => $response['refreshToken'],
         ], 'Token refreshed successfully');
     }
 
     /**
      * Login user with Google
      */
-    public function loginWithGoogle(LoginGoogleRequest $request): JsonResponse {
+    public function loginWithGoogle(LoginGoogleRequest $request): JsonResponse
+    {
         $validated = $request->validated();
-        $token = $this->authService->loginWithGoogle($validated['accessToken']);
+        $response = $this->authService->loginWithGoogle($validated['accessToken']);
 
-        if (! $token) {
+        if (! $response) {
             return $this->sendResponse(
                 null,
                 'Invalid credentials',
@@ -96,8 +108,8 @@ class AuthController extends Controller
         }
 
         return $this->sendResponse([
-            'accessToken' => $token,
+            'accessToken' => $response['accessToken'],
+            'refreshToken' => $response['refreshToken'],
         ], 'User logged in successfully');
     }
-
 }

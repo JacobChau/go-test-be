@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Group extends Model
 {
-    use HasFactory, HasCreatedBy;
+    use HasCreatedBy, HasFactory;
 
     protected $fillable = ['name', 'description', 'thumbnail'];
 

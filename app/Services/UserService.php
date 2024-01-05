@@ -20,8 +20,13 @@ class UserService extends BaseService
         return $this->getList($query);
     }
 
-    public function getByEmail(string $email): User | null
+    public function getByEmail(string $email): ?User
     {
         return $this->model->query()->email($email)->first();
+    }
+
+    public function findByRememberToken(string $refreshToken): ?User
+    {
+        return $this->model->query()->rememberToken($refreshToken)->first();
     }
 }

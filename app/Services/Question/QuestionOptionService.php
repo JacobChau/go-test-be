@@ -11,6 +11,7 @@ use App\Services\MediaService;
 class QuestionOptionService extends BaseService
 {
     protected MediaService $mediaService;
+
     public function __construct(QuestionOption $subject, MediaService $mediaService)
     {
         $this->model = $subject;
@@ -20,8 +21,6 @@ class QuestionOptionService extends BaseService
     /**
      * Create question options.
      *
-     * @param array $options
-     * @param int $questionId
      * @return void $questionId
      */
     public function createOptions(array $options, int $questionId): void

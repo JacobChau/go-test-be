@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests;
 
-use BenSampo\Enum\Rules\Enum;
 use App\Enums\UserRole;
+use BenSampo\Enum\Rules\Enum;
 use Illuminate\Contracts\Validation\ValidationRule;
 
 class StoreUserRequest extends ApiFormRequest
@@ -22,7 +22,7 @@ class StoreUserRequest extends ApiFormRequest
     protected function prepareForValidation(): void
     {
         $this->merge([
-            'role' => UserRole::coerce($this->role) ?? UserRole::coerce(UserRole::Student)
+            'role' => UserRole::coerce($this->role) ?? UserRole::coerce(UserRole::Student),
         ]);
     }
 
@@ -41,6 +41,4 @@ class StoreUserRequest extends ApiFormRequest
             'role' => ['required', new Enum(UserRole::class)],
         ];
     }
-
-
 }

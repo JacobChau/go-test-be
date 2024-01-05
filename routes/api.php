@@ -1,10 +1,10 @@
 <?php
 
 use App\Enums\UserRole;
+use App\Http\Controllers\AssessmentController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\VerificationController;
-use App\Http\Controllers\Group\GroupController;
 use App\Http\Controllers\PassageController;
 use App\Http\Controllers\Question\QuestionCategoryController;
 use App\Http\Controllers\Question\QuestionController;
@@ -24,7 +24,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-
 // Group all routes that don't require specific role middleware
 Route::middleware('api')->group(function () {
     // AUTHENTICATION ROUTES
@@ -34,6 +33,7 @@ Route::middleware('api')->group(function () {
             Route::post('/login', 'login')->name('login');
             Route::post('/register', 'register')->name('register');
             Route::post('/google', 'loginWithGoogle')->name('google');
+            Route::post('/refresh', 'refresh')->name('refresh');
         });
 
         // PasswordController routes
@@ -43,7 +43,9 @@ Route::middleware('api')->group(function () {
             Route::put('/change-password', 'change')->name('change');
         });
 
-        // VerificationController routes
+    });
+    // VerificationController routes
+    Route::prefix('auth')->name('verification.')->group(function () {
         Route::controller(VerificationController::class)->group(function () {
             Route::get('/email/verify/{id}/{hash}', 'verify')->name('verify');
             Route::post('/email/resend', 'resend')->name('resend');
@@ -57,7 +59,6 @@ Route::middleware(['api', 'auth'])->group(function () {
         // AuthController routes
         Route::controller(AuthController::class)->group(function () {
             Route::get('/me', 'me')->name('me');
-            Route::get('/refresh', 'refresh')->name('refresh');
             Route::post('/logout', 'logout')->name('logout');
         });
     });
@@ -92,16 +93,18 @@ Route::middleware(['api', 'auth'])->group(function () {
         Route::get('/{category}', 'show')->name('show');
     });
 
-    // GROUP ROUTES
-    Route::prefix('groups')->name('groups.')->controller(GroupController::class)->group(function () {
+    // ASSESSMENT ROUTES
+    Route::prefix('assessments')->name('assessments.')->controller(AssessmentController::class)->group(function () {
         Route::get('/', 'index')->name('index');
-        Route::get('/{group}', 'show')->name('show');
+        Route::get('/{assessment}', 'show')->name('show');
+        Route::get('/{assessment}/questions', 'questions')->name('questions');
+        Route::post('/{assessment}/attempt', 'attempt')->name('attempt');
+        Route::post('/{assessment}/submit', 'submit')->name('submit');
     });
 });
 
-
 // Group all routes that require specific role middleware
-Route::middleware(['api', 'role:' . UserRole::Admin])->group(function () {
+Route::middleware(['api', 'role:'.UserRole::Admin])->group(function () {
     // USER ROUTES
     Route::prefix('users')->name('users.')->controller(UserController::class)->group(function () {
         Route::post('/', 'store')->name('store');
@@ -141,6 +144,11 @@ Route::middleware(['api', 'role:' . UserRole::Admin])->group(function () {
     Route::prefix('upload')->name('upload.')->controller(UploadController::class)->group(function () {
         Route::post('/', 'upload')->name('upload');
     });
+
+    // ASSESSMENT ROUTES
+    Route::prefix('assessments')->name('assessments.')->controller(AssessmentController::class)->group(function () {
+        Route::post('/', 'store')->name('store');
+        Route::put('/{assessment}', 'update')->name('update');
+        Route::delete('/{assessment}', 'destroy')->name('destroy');
+    });
 });
-
-

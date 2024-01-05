@@ -20,21 +20,21 @@ class VerificationController extends Controller
         $this->middleware(['auth', 'throttle:6,1'])->only('verify', 'resend');
     }
 
-    public function verify(EmailVerificationRequest $request) : JsonResponse
+    public function verify(EmailVerificationRequest $request): JsonResponse
     {
         $this->authService->verifyEmail($request);
 
         return response()->json([
-            'message' => 'Email verified successfully'
+            'message' => 'Email verified successfully',
         ], Response::HTTP_OK);
     }
 
-    public function resend(Request $request) : JsonResponse
+    public function resend(Request $request): JsonResponse
     {
         $this->authService->resendVerificationEmail($request);
 
         return response()->json([
-            'message' => 'Email verification link sent on your email id'
+            'message' => 'Email verification link sent on your email id',
         ], Response::HTTP_ACCEPTED);
     }
 }

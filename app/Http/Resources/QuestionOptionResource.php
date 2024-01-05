@@ -2,10 +2,7 @@
 
 namespace App\Http\Resources;
 
-use App\Enums\QuestionType;
-use BenSampo\Enum\Exceptions\InvalidEnumMemberException;
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
 use TiMacDonald\JsonApi\JsonApiResource;
 
 class QuestionOptionResource extends JsonApiResource
@@ -14,8 +11,8 @@ class QuestionOptionResource extends JsonApiResource
     {
         return [
             'answer' => $this->answer,
-            'isCorrect' => $this->is_correct,
-            'blankOrder'=> $this->when($this->blank_order !== null, $this->blank_order),
+            'isCorrect' => $this->when($this->is_correct !== null && $this->question->created_by === $request->user()->id, $this->is_correct),
+            'blankOrder' => $this->when($this->blank_order !== null && $this->question->created_by === $request->user()->id, $this->blank_order),
         ];
     }
 }

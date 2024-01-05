@@ -173,7 +173,6 @@ class QuestionSeeder extends Seeder
             ],
         ]);
 
-
         $question6 = Question::create([
             'content' => 'The _______ of the TOEIC test is to measure English proficiency.',
             'type' => QuestionType::FillIn,
@@ -246,7 +245,6 @@ class QuestionSeeder extends Seeder
             'answer' => 'advancement',
             'is_correct' => true,
         ]);
-
 
         $mediaForExplanationQuestion9 = new Media([
             'url' => 'https://www.ets.org/toeic/images/TOEIC_Logo_Stacked_White.png',
@@ -616,7 +614,6 @@ class QuestionSeeder extends Seeder
             $option->media()->save($media);
         }
 
-
         $question24 = Question::create([
             'content' => 'Choose the images that best describe the car.',
             'type' => QuestionType::MultipleChoice,
@@ -699,8 +696,8 @@ class QuestionSeeder extends Seeder
         $question26 = Question::create([
             'content' => 'What is the main topic of the audio?',
             'type' => QuestionType::MultipleChoice,
-//            'url' => 'https://www.ets.org/toeic/listening/mp3/Part1_2.mp3',
-//            'type' => MediaType::Audio,
+            //            'url' => 'https://www.ets.org/toeic/listening/mp3/Part1_2.mp3',
+            //            'type' => MediaType::Audio,
             'is_published' => true,
             'passage_id' => $passage->id,
             'category_id' => $category->id,

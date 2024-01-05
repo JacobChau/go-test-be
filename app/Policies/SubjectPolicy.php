@@ -10,10 +10,6 @@ class SubjectPolicy
 {
     /**
      * If a user is an admin or teacher, they can create a subject.
-     *
-     * @param User $user
-     * @param Subject $model
-     * @return Response
      */
     public function create(User $user, Subject $model): Response
     {
@@ -22,10 +18,6 @@ class SubjectPolicy
 
     /**
      * If a user is an admin or teacher, they can update a subject.
-     *
-     * @param User $user
-     * @param Subject $model
-     * @return Response
      */
     public function update(User $user, Subject $model): Response
     {
@@ -34,10 +26,6 @@ class SubjectPolicy
 
     /**
      * If a user is an admin or teacher, they can delete a subject.
-     *
-     * @param User $user
-     * @param Subject $model
-     * @return Response
      */
     public function delete(User $user, Subject $model): Response
     {

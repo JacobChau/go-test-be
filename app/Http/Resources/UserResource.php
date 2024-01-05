@@ -19,8 +19,8 @@ class UserResource extends JsonApiResource
     ];
 
     /**
-     * @param Request $request
      * @return array<string, mixed>
+     *
      * @throws InvalidEnumMemberException
      */
     public function toAttributes(Request $request): array

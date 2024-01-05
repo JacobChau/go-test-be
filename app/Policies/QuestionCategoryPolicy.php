@@ -10,23 +10,16 @@ class QuestionCategoryPolicy
 {
     /**
      * If a user is an admin or teacher, they can create a category.
-     *
-     * @param User $user
-     * @param QuestionCategory $model
-     * @return Response
      */
     public function create(User $user, QuestionCategory $model): Response
     {
         var_dump($model);
+
         return $user->isAdmin() || $user->isTeacher() ? Response::allow() : Response::deny('You do not have permission to create a category.');
     }
 
     /**
      * If a user is an admin or owner of the category, they can update a category.
-     *
-     * @param User $user
-     * @param QuestionCategory $model
-     * @return Response
      */
     public function update(User $user, QuestionCategory $model): Response
     {
@@ -35,13 +28,9 @@ class QuestionCategoryPolicy
 
     /**
      * If a user is an admin or teacher, they can delete a category.
-     *
-     * @param User $user
-     * @param QuestionCategory $model
-     * @return Response
      */
     public function delete(User $user, QuestionCategory $model): Response
     {
-        return $user->isAdmin() || $user->isTeacher()  || $user->is($model->createdBy) ? Response::allow() : Response::deny('You do not have permission to delete this category.');
+        return $user->isAdmin() || $user->isTeacher() || $user->is($model->createdBy) ? Response::allow() : Response::deny('You do not have permission to delete this category.');
     }
 }
