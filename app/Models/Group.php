@@ -9,12 +9,17 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Group extends Model
 {
-    use HasFactory, HasCreatedBy;
+    use HasCreatedBy, HasFactory;
 
     protected $fillable = ['name', 'description', 'thumbnail'];
 
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'user_groups')->withTimestamps();
+    }
+
+    public function assessments(): BelongsToMany
+    {
+        return $this->belongsToMany(Assessment::class, 'assessment_groups')->withTimestamps();
     }
 }

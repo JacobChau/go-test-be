@@ -3,17 +3,14 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Gate;
 
-class UpdateSubjectRequest extends FormRequest
+class StoreGroupRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
-        Gate::authorize('update', $this->route('subject'));
-
         return true;
     }
 
@@ -25,8 +22,9 @@ class UpdateSubjectRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'string',
-            'description' => 'string',
+            'name' => 'required|string|max:255',
+            'description' => 'string|nullable',
+            'thumbnail' => 'string|nullable',
         ];
     }
 }

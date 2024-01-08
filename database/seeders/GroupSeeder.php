@@ -15,7 +15,7 @@ class GroupSeeder extends Seeder
     {
         for ($i = 1; $i <= 5; $i++) {
             $group = Group::create([
-                'name' => 'Group ' . $i,
+                'name' => 'Group '.$i,
                 'description' => fake()->sentence(),
                 'thumbnail' => fake()->imageUrl(),
             ]);

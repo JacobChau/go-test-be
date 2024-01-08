@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class QuestionExplanation extends Model
 {
     use SoftDeletes;
+
     protected $fillable = ['content', 'question_id'];
 
     public function question(): BelongsTo

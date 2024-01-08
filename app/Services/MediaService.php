@@ -17,10 +17,6 @@ class MediaService extends BaseService
 
     /**
      * Process and save images from given content.
-     *
-     * @param string $content
-     * @param int $mediableId
-     * @param string $mediableType
      */
     public function processAndSaveImages(string $content, int $mediableId, string $mediableType): void
     {
@@ -38,10 +34,6 @@ class MediaService extends BaseService
 
     /**
      * Process, synchronize images with S3 bucket, and save new images from given content.
-     *
-     * @param string $content
-     * @param int $mediableId
-     * @param string $mediableType
      */
     public function syncContentImages(string $content, int $mediableId, string $mediableType): void
     {
@@ -58,7 +50,7 @@ class MediaService extends BaseService
 
             // Add new images to the database
             foreach ($currentImageUrls as $imageUrl) {
-                if (!in_array($imageUrl, $oldImageUrls)) {
+                if (! in_array($imageUrl, $oldImageUrls)) {
                     $this->create([
                         'url' => $imageUrl,
                         'type' => MediaType::Image,
@@ -70,7 +62,7 @@ class MediaService extends BaseService
         }
 
         $imagesToDelete = array_diff($oldImageUrls, $currentImageUrls);
-        if (!empty($imagesToDelete)) {
+        if (! empty($imagesToDelete)) {
             $this->model
                 ->where('mediable_id', $mediableId)
                 ->where('mediable_type', $mediableType)
@@ -87,13 +79,13 @@ class MediaService extends BaseService
         $imagesToDelete = [];
 
         foreach ($oldImages as $image) {
-            if (!in_array($image->url, $currentImageUrls)) {
+            if (! in_array($image->url, $currentImageUrls)) {
                 $imageName = basename($image->url);
                 $imagesToDelete[] = $imageName;
             }
         }
 
-        if (!empty($imagesToDelete)) {
+        if (! empty($imagesToDelete)) {
             Storage::disk('s3')->delete($imagesToDelete);
         }
     }
@@ -107,7 +99,7 @@ class MediaService extends BaseService
             $imagesToDelete[] = $imageName;
         }
 
-        if (!empty($imagesToDelete)) {
+        if (! empty($imagesToDelete)) {
             Storage::disk('s3')->delete($imagesToDelete);
         }
     }

@@ -2,10 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\UserRole;
 use BenSampo\Enum\Rules\Enum;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Facades\Gate;
-use App\Enums\UserRole;
 
 class UpdateUserRequest extends ApiFormRequest
 {

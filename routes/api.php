@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\UserRole;
+use App\Http\Controllers\AssessmentController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\VerificationController;
@@ -23,7 +24,6 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-
 
 // Group all routes that don't require specific role middleware
 Route::middleware('api')->group(function () {
@@ -97,11 +97,16 @@ Route::middleware(['api', 'auth'])->group(function () {
         Route::get('/', 'index')->name('index');
         Route::get('/{group}', 'show')->name('show');
     });
+
+    // ASSESSMENT ROUTES
+    Route::prefix('assessments')->name('assessments.')->controller(AssessmentController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/{assessment}', 'show')->name('show');
+    });
 });
 
-
 // Group all routes that require specific role middleware
-Route::middleware(['api', 'role:' . UserRole::Admin])->group(function () {
+Route::middleware(['api', 'role:'.UserRole::Admin])->group(function () {
     // USER ROUTES
     Route::prefix('users')->name('users.')->controller(UserController::class)->group(function () {
         Route::post('/', 'store')->name('store');
@@ -141,6 +146,11 @@ Route::middleware(['api', 'role:' . UserRole::Admin])->group(function () {
     Route::prefix('upload')->name('upload.')->controller(UploadController::class)->group(function () {
         Route::post('/', 'upload')->name('upload');
     });
+
+    // ASSESSMENT ROUTES
+    Route::prefix('assessments')->name('assessments.')->controller(AssessmentController::class)->group(function () {
+        Route::post('/', 'store')->name('store');
+        Route::put('/{assessment}', 'update')->name('update');
+        Route::delete('/{assessment}', 'destroy')->name('destroy');
+    });
 });
-
-

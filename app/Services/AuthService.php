@@ -14,21 +14,22 @@ class AuthService extends BaseService
 {
     protected UserService $userService;
 
-    public function __construct(UserService $userService) {
+    public function __construct(UserService $userService)
+    {
         $this->userService = $userService;
     }
 
-    public function loginWithGoogle(string $accessToken) : string
+    public function loginWithGoogle(string $accessToken): string
     {
         $results = $this->getUserInfoFromGoogle($accessToken);
 
         $user = $this->userService->firstOrCreate([
             'email' => $results->email,
         ], [
-        'avatar' => $results->picture,
-            'name' => $results->family_name . ' ' . $results->given_name,
-            'email_verified_at' => now()
-            ]
+            'avatar' => $results->picture,
+            'name' => $results->family_name.' '.$results->given_name,
+            'email_verified_at' => now(),
+        ]
         );
 
         return $this->loginAndReturnToken($user);
@@ -85,7 +86,7 @@ class AuthService extends BaseService
         $request->user()->sendEmailVerificationNotification();
     }
 
-    private function checkIfEmailVerified(Request $request) : void
+    private function checkIfEmailVerified(Request $request): void
     {
         if ($request->user()->hasVerifiedEmail()) {
             response()->json([
@@ -94,17 +95,18 @@ class AuthService extends BaseService
         }
     }
 
-
     private function getUserInfoFromGoogle(string $accessToken)
     {
         $client = new Client();
-        $response = $client->get('https://www.googleapis.com/oauth2/v3/userinfo?access_token=' . $accessToken);
+        $response = $client->get('https://www.googleapis.com/oauth2/v3/userinfo?access_token='.$accessToken);
+
         return json_decode($response->getBody()->getContents());
     }
 
     private function loginAndReturnToken($user)
     {
         auth()->login($user);
+
         return auth()->tokenById($user->id);
     }
 }

@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Subject;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class SubjectSeeder extends Seeder
@@ -25,7 +24,7 @@ class SubjectSeeder extends Seeder
             [
                 'name' => 'Toefl',
                 'description' => 'Test of English as a Foreign Language',
-            ]
+            ],
         ];
 
         Subject::insert($data);

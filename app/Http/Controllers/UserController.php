@@ -37,7 +37,7 @@ class UserController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreUserRequest $request) : JsonResponse
+    public function store(StoreUserRequest $request): JsonResponse
     {
         $this->userService->create($request->validated() + ['email_verified_at' => now()]);
 

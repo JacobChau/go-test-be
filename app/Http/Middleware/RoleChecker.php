@@ -22,7 +22,7 @@ class RoleChecker
 
         $roles = explode('|', $roles[0]);
 
-        if (!$user->hasAnyRole($roles)) {
+        if (! $user->hasAnyRole($roles)) {
             return response()->json(['message' => 'Forbidden'], Response::HTTP_FORBIDDEN);
         }
 
