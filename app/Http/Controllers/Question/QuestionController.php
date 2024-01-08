@@ -78,16 +78,4 @@ class QuestionController extends Controller
     {
         //
     }
-
-    private function applyFilters(Builder $query, array $filters): void
-    {
-        foreach ($filters as $scope => $value) {
-            if ($scope === 'type') {
-                $value = QuestionType::getValue($value);
-            }
-
-            $scope = Str::camel($scope);
-            $query = $query->$scope($value);
-        }
-    }
 }

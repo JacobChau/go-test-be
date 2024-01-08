@@ -17,4 +17,9 @@ class Group extends Model
     {
         return $this->belongsToMany(User::class, 'user_groups')->withTimestamps();
     }
+
+    public function assessments(): BelongsToMany
+    {
+        return $this->belongsToMany(Assessment::class, 'assessment_groups')->withTimestamps();
+    }
 }

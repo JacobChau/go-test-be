@@ -39,7 +39,7 @@ class BaseService
             }
         }
 
-        return $query->find($id);
+        return $query->findOrFail($id);
     }
 
     public function firstOrCreate(array $conditions, array $data = []): object
