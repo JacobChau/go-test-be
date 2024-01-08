@@ -8,19 +8,23 @@ use App\Enums\QuestionType;
 use App\Http\Resources\QuestionResource;
 use App\Models\Question;
 use App\Services\BaseService;
-use Exception;
-use Illuminate\Database\Eloquent\Builder;
 use App\Services\MediaService;
 use App\Services\PassageService;
 use App\Services\SubjectService;
+use Exception;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
 class QuestionService extends BaseService
 {
     protected QuestionExplanationService $explanationService;
+
     protected QuestionOptionService $optionService;
+
     protected PassageService $passageService;
+
     protected SubjectService $subjectService;
+
     protected MediaService $mediaService;
 
     public function __construct(
@@ -42,11 +46,10 @@ class QuestionService extends BaseService
     /**
      * Create a new question with associated data.
      *
-     * @param array $data Data for creating a question.
-     * @return Question
+     * @param  array  $data Data for creating a question.
+     *
      * @throws Exception
      */
-
     public function create(array $data): Question
     {
         try {
@@ -74,11 +77,10 @@ class QuestionService extends BaseService
             throw $e;
         }
 
-
         return $question;
     }
 
-    public function getList(string $resourceClass = null, array $input = [], Builder $query = null, array $relations = []): array
+    public function getList(?string $resourceClass = null, array $input = [], ?Builder $query = null, array $relations = []): array
     {
         $relations = ['category'];
         $query = $this->getModel()->query();
@@ -128,7 +130,7 @@ class QuestionService extends BaseService
             $this->mediaService->syncContentImages($data['content'], $question->id, Question::class);
 
             if (isset($data['explanation'])) {
-                $this->explanationService->updateOrCreateExplanation($question->id, $data['explanation']["id"], $data['explanation']["content"]);
+                $this->explanationService->updateOrCreateExplanation($question->id, $data['explanation']['id'], $data['explanation']['content']);
             }
 
             // Delete all options if question type is changed to text

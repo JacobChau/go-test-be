@@ -21,7 +21,7 @@ class AssessmentController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index() : JsonResponse
+    public function index(): JsonResponse
     {
         $assessments = $this->assessmentService->getList(AssessmentResource::class, request()->all());
 
@@ -31,7 +31,7 @@ class AssessmentController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreAssessmentRequest $request) : JsonResponse
+    public function store(StoreAssessmentRequest $request): JsonResponse
     {
         $assessment = $this->assessmentService->create($request->validated());
 
@@ -44,7 +44,7 @@ class AssessmentController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id) : JsonResponse
+    public function show(string $id): JsonResponse
     {
         $relations = ['questions', 'groups'];
         $assessment = $this->assessmentService->getById($id, $relations);

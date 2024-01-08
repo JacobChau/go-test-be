@@ -22,43 +22,43 @@ class AssessmentService extends BaseService
     public function create(array $data): Assessment
     {
         //{
-            //"name": "Montana Rice",
-            //"subjectId": 2,
-            //"description": "Corporis ut dolore a",
-            //"duration": 96,
-            //"passMarks": 0,
-            //"totalMarks": 0,
-            //"maxAttempts": 10,
-            //"validFrom": "2023-12-28T02:54:28.614Z",
-            //"validTo": "2023-12-28T04:54:28.614Z",
-            //"isPublished": true,
-            //"questions": [
-            //{
-            //"id": 1,
-            //"mark": 0
-            //},
-            //{
-            //    "id": 2,
-            //            "mark": 0
-            //        },
-            //{
-            //    "id": 3,
-            //            "mark": 0
-            //        },
-            //{
-            //    "id": 4,
-            //            "mark": 0
-            //        },
-            //{
-            //    "id": 5,
-            //            "mark": 0
-            //        }
-            //],
-            //"groupIds": [
-            //    1,
-            //    2
-            //]
-            //}
+        //"name": "Montana Rice",
+        //"subjectId": 2,
+        //"description": "Corporis ut dolore a",
+        //"duration": 96,
+        //"passMarks": 0,
+        //"totalMarks": 0,
+        //"maxAttempts": 10,
+        //"validFrom": "2023-12-28T02:54:28.614Z",
+        //"validTo": "2023-12-28T04:54:28.614Z",
+        //"isPublished": true,
+        //"questions": [
+        //{
+        //"id": 1,
+        //"mark": 0
+        //},
+        //{
+        //    "id": 2,
+        //            "mark": 0
+        //        },
+        //{
+        //    "id": 3,
+        //            "mark": 0
+        //        },
+        //{
+        //    "id": 4,
+        //            "mark": 0
+        //        },
+        //{
+        //    "id": 5,
+        //            "mark": 0
+        //        }
+        //],
+        //"groupIds": [
+        //    1,
+        //    2
+        //]
+        //}
         try {
             DB::beginTransaction();
 

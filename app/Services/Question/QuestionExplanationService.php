@@ -11,6 +11,7 @@ use App\Services\MediaService;
 class QuestionExplanationService extends BaseService
 {
     protected MediaService $mediaService;
+
     public function __construct(QuestionExplanation $subject, MediaService $mediaService)
     {
         $this->model = $subject;
@@ -19,9 +20,6 @@ class QuestionExplanationService extends BaseService
 
     /**
      * Create question explanation.
-     *
-     * @param string $explanation
-     * @param int $questionId
      */
     public function createExplanation(string $explanation, int $questionId): void
     {
@@ -40,6 +38,7 @@ class QuestionExplanationService extends BaseService
         if ($explanationId !== null && $content === null) {
             $this->delete($explanationId);
             $this->mediaService->deleteMedia(QuestionExplanation::class, $explanationId);
+
             return;
         }
 

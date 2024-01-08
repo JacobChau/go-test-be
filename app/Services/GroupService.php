@@ -12,9 +12,9 @@ class GroupService extends BaseService
     {
         $this->model = $group;
     }
+
     public function getModel(): Group
     {
         return $this->model;
     }
-
 }

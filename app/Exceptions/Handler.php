@@ -2,7 +2,6 @@
 
 namespace App\Exceptions;
 
-use Illuminate\Support\Facades\Log;
 use Exception;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Sentry\Laravel\Integration;

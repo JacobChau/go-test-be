@@ -25,7 +25,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-
 // Group all routes that don't require specific role middleware
 Route::middleware('api')->group(function () {
     // AUTHENTICATION ROUTES
@@ -106,9 +105,8 @@ Route::middleware(['api', 'auth'])->group(function () {
     });
 });
 
-
 // Group all routes that require specific role middleware
-Route::middleware(['api', 'role:' . UserRole::Admin])->group(function () {
+Route::middleware(['api', 'role:'.UserRole::Admin])->group(function () {
     // USER ROUTES
     Route::prefix('users')->name('users.')->controller(UserController::class)->group(function () {
         Route::post('/', 'store')->name('store');
@@ -156,5 +154,3 @@ Route::middleware(['api', 'role:' . UserRole::Admin])->group(function () {
         Route::delete('/{assessment}', 'destroy')->name('destroy');
     });
 });
-
-

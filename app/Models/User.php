@@ -3,8 +3,8 @@
 namespace App\Models;
 
 use App\Enums\UserRole;
-use App\Notifications\VerifyEmailQueued;
 use App\Notifications\ResetPasswordQueued;
+use App\Notifications\VerifyEmailQueued;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -13,7 +13,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class User extends Authenticatable implements MustVerifyEmail, JWTSubject
+class User extends Authenticatable implements JWTSubject, MustVerifyEmail
 {
     use HasFactory, Notifiable;
 
@@ -29,7 +29,7 @@ class User extends Authenticatable implements MustVerifyEmail, JWTSubject
         'email_verified_at',
         'birthdate',
         'avatar',
-        'role'
+        'role',
     ];
 
     /**
@@ -54,8 +54,6 @@ class User extends Authenticatable implements MustVerifyEmail, JWTSubject
 
     /**
      * Get the identifier that will be stored in the subject claim of the JWT.
-     *
-     * @return mixed
      */
     public function getJWTIdentifier(): mixed
     {
@@ -64,8 +62,6 @@ class User extends Authenticatable implements MustVerifyEmail, JWTSubject
 
     /**
      * Return a key value array, containing any custom claims to be added to the JWT.
-     *
-     * @return array
      */
     public function getJWTCustomClaims(): array
     {
@@ -89,8 +85,6 @@ class User extends Authenticatable implements MustVerifyEmail, JWTSubject
 
     /**
      * Send the queued email verification notification.
-     *
-     * @return void
      */
     public function sendEmailVerificationNotification(): void
     {
@@ -101,13 +95,11 @@ class User extends Authenticatable implements MustVerifyEmail, JWTSubject
      * Send the queued password reset notification.
      *
      * @param  string  $token
-     * @return void
      */
     public function sendPasswordResetNotification($token): void
     {
         $this->notify(new ResetPasswordQueued($token));
     }
-
 
     // ------------------ Relationships ------------------
     public function groups(): BelongsToMany
@@ -135,7 +127,6 @@ class User extends Authenticatable implements MustVerifyEmail, JWTSubject
         return $this->hasMany(Question::class, 'created_by');
     }
 
-
     // ------------------ Scopes ------------------
     public function scopeEmail($query, string $email)
     {
@@ -151,5 +142,4 @@ class User extends Authenticatable implements MustVerifyEmail, JWTSubject
     {
         return $verified ? $query->whereNotNull('email_verified_at') : $query->whereNull('email_verified_at');
     }
-
 }

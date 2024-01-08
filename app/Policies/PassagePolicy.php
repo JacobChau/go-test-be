@@ -10,10 +10,6 @@ class PassagePolicy
 {
     /**
      * If a user is an admin or owner of the passage, they can update a passage.
-     *
-     * @param User $user
-     * @param Passage $model
-     * @return Response
      */
     public function update(User $user, Passage $model): Response
     {
@@ -22,10 +18,6 @@ class PassagePolicy
 
     /**
      * If a user is an admin or teacher, they can delete a passage.
-     *
-     * @param User $user
-     * @param Passage $model
-     * @return Response
      */
     public function delete(User $user, Passage $model): Response
     {

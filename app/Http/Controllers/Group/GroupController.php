@@ -13,9 +13,11 @@ use Symfony\Component\HttpFoundation\Response;
 class GroupController extends Controller
 {
     protected UserService $userService;
+
     protected GroupService $groupService;
 
-    public function __construct(UserService $userService, GroupService $groupService) {
+    public function __construct(UserService $userService, GroupService $groupService)
+    {
         $this->userService = $userService;
         $this->groupService = $groupService;
     }
@@ -38,7 +40,7 @@ class GroupController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreGroupRequest $request) : JsonResponse
+    public function store(StoreGroupRequest $request): JsonResponse
     {
         $this->groupService->create($request->validated());
 

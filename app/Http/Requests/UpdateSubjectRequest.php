@@ -12,7 +12,7 @@ class UpdateSubjectRequest extends FormRequest
      */
     public function authorize(): bool
     {
-         Gate::authorize('update', $this->route('subject'));
+        Gate::authorize('update', $this->route('subject'));
 
         return true;
     }

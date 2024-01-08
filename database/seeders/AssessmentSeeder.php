@@ -24,8 +24,8 @@ class AssessmentSeeder extends Seeder
             }
 
             $assessment = Assessment::create([
-                'name' => 'Assessment ' . $i,
-                'description' => 'Description for Assessment ' . $i,
+                'name' => 'Assessment '.$i,
+                'description' => 'Description for Assessment '.$i,
                 'total_marks' => 100,
                 'pass_marks' => 70,
                 'max_attempts' => 3,

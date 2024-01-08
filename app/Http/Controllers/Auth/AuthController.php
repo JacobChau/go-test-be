@@ -16,9 +16,11 @@ use Symfony\Component\HttpFoundation\Response;
 class AuthController extends Controller
 {
     protected UserService $userService;
+
     protected AuthService $authService;
 
-    public function __construct(UserService $userService, AuthService $authService) {
+    public function __construct(UserService $userService, AuthService $authService)
+    {
         $this->userService = $userService;
         $this->authService = $authService;
     }
@@ -26,7 +28,7 @@ class AuthController extends Controller
     /**
      * Register user
      */
-    public function register(StoreUserRequest $request) : JsonResponse
+    public function register(StoreUserRequest $request): JsonResponse
     {
         $user = $this->userService->create($request->validated());
 
@@ -48,7 +50,7 @@ class AuthController extends Controller
 
         if (! $token) {
             return response()->json([
-                'message' => 'Invalid credentials'
+                'message' => 'Invalid credentials',
             ], Response::HTTP_UNAUTHORIZED);
         }
 
@@ -60,8 +62,6 @@ class AuthController extends Controller
 
     /**
      * Get the authenticated User.
-     *
-     * @return JsonResponse
      */
     public function me(): JsonResponse
     {
@@ -70,8 +70,6 @@ class AuthController extends Controller
 
     /**
      * Refresh a token.
-     *
-     * @return JsonResponse
      */
     public function refresh(): JsonResponse
     {
@@ -83,7 +81,8 @@ class AuthController extends Controller
     /**
      * Login user with Google
      */
-    public function loginWithGoogle(LoginGoogleRequest $request): JsonResponse {
+    public function loginWithGoogle(LoginGoogleRequest $request): JsonResponse
+    {
         $validated = $request->validated();
         $token = $this->authService->loginWithGoogle($validated['accessToken']);
 
@@ -99,5 +98,4 @@ class AuthController extends Controller
             'accessToken' => $token,
         ], 'User logged in successfully');
     }
-
 }

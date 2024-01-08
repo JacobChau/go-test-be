@@ -2,15 +2,12 @@
 
 namespace App\Http\Resources;
 
-use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Http\Resources\Json\JsonResource;
 use TiMacDonald\JsonApi\JsonApiResource;
 
 class GroupResource extends JsonApiResource
 {
     /**
-     * @param Request $request
      * @return array<string, mixed>
      */
     public function toAttributes(Request $request): array
