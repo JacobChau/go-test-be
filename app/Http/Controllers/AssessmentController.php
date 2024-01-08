@@ -81,39 +81,39 @@ class AssessmentController extends Controller
 
     public function submit(SubmitAssessmentRequest $request, string $id): JsonResponse
     {
-//{
-//"attemptId": 15,
-//"answers": [
-//{
-//"questionId": "22",
-//"answer": {}
-//},
-//{
-//    "questionId": "11",
-//            "answer": "huuhuhuh"
-//        },
-//{
-//    "questionId": "9",
-//            "answer": "123"
-//        },
-//{
-//    "questionId": "25",
-//            "answer": "62"
-//        },
-//{
-//    "questionId": "14",
-//            "answer": "213123"
-//        },
-//{
-//    "questionId": "26",
-//            "answer": "66"
-//        },
-//{
-//    "questionId": "20",
-//            "answer": {}
-//        }
-//]
-//}
+        //{
+        //"attemptId": 15,
+        //"answers": [
+        //{
+        //"questionId": "22",
+        //"answer": {}
+        //},
+        //{
+        //    "questionId": "11",
+        //            "answer": "huuhuhuh"
+        //        },
+        //{
+        //    "questionId": "9",
+        //            "answer": "123"
+        //        },
+        //{
+        //    "questionId": "25",
+        //            "answer": "62"
+        //        },
+        //{
+        //    "questionId": "14",
+        //            "answer": "213123"
+        //        },
+        //{
+        //    "questionId": "26",
+        //            "answer": "66"
+        //        },
+        //{
+        //    "questionId": "20",
+        //            "answer": {}
+        //        }
+        //]
+        //}
         $response = $this->assessmentService->submit($request->validated(), $id);
 
         return $this->sendResponse($response, 'Assessment submitted successfully.');

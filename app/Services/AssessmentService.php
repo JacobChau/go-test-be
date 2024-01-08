@@ -118,79 +118,6 @@ class AssessmentService extends BaseService
         ];
     }
 
-    /**
-     * Create a new assessment with associated data.
-     *
-     * @param  array  $data Data for creating an assessment.
-     *
-     * @throws Exception
-     */
-    public function create(array $data): Assessment
-    {
-        try {
-            DB::beginTransaction();
-            $assessment = $this->model->create([
-                'content' => $data['content'],
-                'type' => $data['type'],
-                'category_id' => $data['categoryId'],
-                'passage_id' => $data['passageId'] ?? null,
-            ]);
-
-            DB::commit();
-        } catch (Exception $e) {
-            DB::rollBack();
-            throw $e;
-        }
-
-        return $assessment;
-    }
-
-//{
-//"attemptId": 16,
-//"answers": [
-//{
-//"questionId": "20",
-//"answer": [
-//"42",
-//"43",
-//"44"
-//]
-//},
-//{
-//    "questionId": "31",
-//      "answer": "85"
-//    },
-//{
-//    "questionId": "6",
-//      "answer": "123"
-//    },
-//{
-//    "questionId": "9",
-//      "answer": "23123"
-//    },
-//{
-//    "questionId": "24",
-//      "answer": "59"
-//    },
-//{
-//    "questionId": "16",
-//      "answer": [
-//    "27",
-//    "28"
-//]
-//    },
-//{
-//    "questionId": "28",
-//      "answer": "75"
-//    },
-//{
-//    "questionId": "17",
-//      "answer": [
-//    "31"
-//]
-//    }
-//]
-//}
     public function submit(array $data, string $id): array
     {
         DB::beginTransaction();
@@ -203,7 +130,7 @@ class AssessmentService extends BaseService
                 ];
             }
 
-            $assessment = $this->getById((int)$id, ['questions.options']);
+            $assessment = $this->getById((int) $id, ['questions.options']);
 
             $questions = $assessment->questions;
 
@@ -284,6 +211,7 @@ class AssessmentService extends BaseService
     {
         $correctOptions = $question->options->where('is_correct', true)->pluck('id')->sort();
         $selectedOptions = collect($answers)->sort();
+
         return $selectedOptions->count() === $correctOptions->count() && $selectedOptions->diff($correctOptions)->isEmpty();
     }
 

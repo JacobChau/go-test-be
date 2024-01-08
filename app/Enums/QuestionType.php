@@ -8,13 +8,13 @@ use BenSampo\Enum\Enum;
 
 final class QuestionType extends Enum
 {
-    const int MultipleChoice = 0;
+    const MultipleChoice = 0;
 
-    const int MultipleAnswer = 1;
+    const MultipleAnswer = 1;
 
-    const int TrueFalse = 2;
+    const TrueFalse = 2;
 
-    const int FillIn = 3;
+    const FillIn = 3;
 
-    const int Text = 4;
+    const Text = 4;
 }
