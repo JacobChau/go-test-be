@@ -8,6 +8,7 @@ use App\Enums\QuestionType;
 use App\Http\Resources\AssessmentResource;
 use App\Models\Assessment;
 use App\Models\AssessmentAttemptAnswer;
+use DateTime;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -19,6 +20,44 @@ class AssessmentService extends BaseService
         Assessment $assessment,
     ) {
         $this->model = $assessment;
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function create(array $data): Assessment
+    {
+        try {
+            DB::beginTransaction();
+
+            $assessment = $this->model->create([
+                'name' => $data['name'],
+                'subject_id' => $data['subjectId'],
+                'description' => $data['description'],
+                'duration' => $data['duration'],
+                'pass_marks' => $data['passMarks'],
+                'total_marks' => $data['totalMarks'],
+                'max_attempts' => $data['maxAttempts'],
+                'valid_from' => $data['validFrom'] ? (new DateTime($data['validFrom']))->format('Y-m-d H:i:s') : null,
+                'valid_to' => $data['validTo'] ? (new DateTime($data['validTo']))->format('Y-m-d H:i:s') : null,
+                'is_published' => $data['isPublished'],
+            ]);
+
+            foreach ($data['questions'] as $question) {
+                $assessment->questions()->attach($question['id'], ['marks' => $question['marks'], 'order' => $question['order']]);
+            }
+
+            foreach ($data['groupIds'] as $groupId) {
+                $assessment->groups()->attach($groupId);
+            }
+
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+
+        return $assessment;
     }
 
     public function getList(?string $resourceClass = null, array $input = [], ?Builder $query = null, array $relations = []): array
