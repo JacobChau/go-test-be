@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Resources;
+namespace app\Http\Resources;
 
 use Illuminate\Http\Request;
 use TiMacDonald\JsonApi\JsonApiResource;
@@ -11,15 +11,10 @@ class AssessmentResource extends JsonApiResource
     {
         return [
             'name' => $this->name,
-            'subject' => $this->subject->name,
             'description' => $this->description,
-            'duration' => $this->duration,
-            'passMarks' => $this->pass_marks,
-            'totalMarks' => $this->total_marks,
-            'maxAttempts' => $this->max_attempts,
-            'validFrom' => $this->valid_from,
-            'validTo' => $this->valid_to,
+            'thumbnail' => $this->thumbnail,
             'isPublished' => $this->is_published,
+            'totalQuestions' => $this->questions()->count(),
         ];
     }
 }

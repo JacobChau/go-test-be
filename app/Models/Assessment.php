@@ -24,11 +24,6 @@ class Assessment extends Model
         return $this->belongsToMany(Question::class, 'assessment_questions')->withTimestamps()->withPivot('marks');
     }
 
-    public function groups(): BelongsToMany
-    {
-        return $this->belongsToMany(Group::class, 'assessment_groups')->withTimestamps();
-    }
-
     public function attempts(): HasMany
     {
         return $this->hasMany(AssessmentAttempt::class);

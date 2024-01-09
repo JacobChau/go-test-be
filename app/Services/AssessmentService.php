@@ -6,13 +6,15 @@ namespace App\Services;
 
 use App\Enums\QuestionType;
 use App\Http\Resources\AssessmentResource;
+use App\Http\Resources\QuestionOptionResource;
 use App\Models\Assessment;
 use App\Models\AssessmentAttemptAnswer;
-use DateTime;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use Symfony\Component\HttpFoundation\Response;
 
 class AssessmentService extends BaseService
 {
@@ -83,7 +85,6 @@ class AssessmentService extends BaseService
         $user = auth()->user();
 
         if ($assessment->max_attempts === null) {
-            // create assessment attempt
             $attempt = $user->assessmentAttempts()->create([
                 'assessment_id' => $id,
             ]);
@@ -118,6 +119,101 @@ class AssessmentService extends BaseService
         ];
     }
 
+    /**
+     * Create a new assessment with associated data.
+     *
+     * @param  array  $data Data for creating an assessment.
+     *
+     * @throws Exception
+     */
+    public function create(array $data): Assessment
+    {
+        try {
+            DB::beginTransaction();
+            $assessment = $this->model->create([
+                'content' => $data['content'],
+                'type' => $data['type'],
+                'category_id' => $data['categoryId'],
+                'passage_id' => $data['passageId'] ?? null,
+            ]);
+
+            DB::commit();
+        } catch (Exception $e) {
+            DB::rollBack();
+            throw $e;
+        }
+
+        return $assessment;
+    }
+
+//    public function submit(array $data, string $id): array
+//    {
+//        DB::beginTransaction();
+//        try {
+//            $attempt = auth()->user()->assessmentAttempts()->find($data['attemptId']);
+//
+//            if ($attempt === null) {
+//                return [
+//                    'message' => 'Assessment attempt not found',
+//                ];
+//            }
+//
+//            $assessment = $this->getById((int)$id, ['questions.options']);
+//
+//            $questions = $assessment->questions;
+//
+//            $correctAnswers = 0;
+//            $totalMarks = 0;
+//
+//            foreach ($data['answers'] as $answer) {
+//                $question = $questions->find($answer['questionId']);
+//                if ($question === null) {
+//                    continue;
+//                }
+//
+//                $this->storeUserAnswer($attempt->id, $question->id, $answer['answer']);
+//
+//                $correct = false;
+//                switch ($question->type) {
+//                    case QuestionType::TrueFalse:
+//                    case QuestionType::MultipleChoice:
+//                        $correct = $this->checkSingleAnswer($question, $answer['answer']);
+//                        break;
+//                    case QuestionType::MultipleAnswer:
+//                        $answerArray = is_array($answer['answer']) ? $answer['answer'] : [$answer['answer']];
+//                        $correct = $this->checkMultipleAnswers($question, $answerArray);
+//                        break;
+//                    case QuestionType::FillIn:
+//                        $correct = $this->checkFillInAnswer($question, $answer['answer']);
+//                        break;
+//                    case QuestionType::Text:
+//                        $correct = true; // Assuming all text answers are correct
+//                        break;
+//                }
+//
+//                if ($correct) {
+//                    $totalMarks += $question->pivot->marks;
+//                    $correctAnswers++;
+//                }
+//            }
+//
+//            $attempt->update([
+//                'total_marks' => $totalMarks,
+//            ]);
+//
+//            DB::commit();
+//        } catch (Exception $e) {
+//            DB::rollBack();
+//            throw $e;
+//        }
+//
+//        return [
+//            'correctAnswers' => $correctAnswers,
+//            'totalMarks' => $totalMarks,
+//            'totalQuestions' => $questions->count(),
+//        ];
+//    }
+
     public function submit(array $data, string $id): array
     {
         DB::beginTransaction();
@@ -127,15 +223,14 @@ class AssessmentService extends BaseService
             if ($attempt === null) {
                 return [
                     'message' => 'Assessment attempt not found',
+                    'status' => Response::HTTP_NOT_FOUND,
                 ];
             }
 
-            $assessment = $this->getById((int) $id, ['questions.options']);
-
+            $assessment = $this->getById((int)$id, ['questions.options']);
             $questions = $assessment->questions;
 
             $correctAnswers = 0;
-            $totalMarks = 0;
 
             foreach ($data['answers'] as $answer) {
                 $question = $questions->find($answer['questionId']);
@@ -143,36 +238,12 @@ class AssessmentService extends BaseService
                     continue;
                 }
 
-                // Store user answer
                 $this->storeUserAnswer($attempt->id, $question->id, $answer['answer']);
 
-                $correct = false;
-                switch ($question->type) {
-                    case QuestionType::TrueFalse:
-                    case QuestionType::MultipleChoice:
-                        $correct = $this->checkSingleAnswer($question, $answer['answer']);
-                        break;
-                    case QuestionType::MultipleAnswer:
-                        $answerArray = is_array($answer['answer']) ? $answer['answer'] : [$answer['answer']];
-                        $correct = $this->checkMultipleAnswers($question, $answerArray);
-                        break;
-                    case QuestionType::FillIn:
-                        $correct = $this->checkFillInAnswer($question, $answer['answer']);
-                        break;
-                    case QuestionType::Text:
-                        $correct = true; // Assuming all text answers are correct
-                        break;
-                }
-
-                if ($correct) {
-                    $totalMarks += $question->pivot->marks;
+                if ($this->checkAnswer($question, $answer['answer'])) {
                     $correctAnswers++;
                 }
             }
-
-            $attempt->update([
-                'total_marks' => $totalMarks,
-            ]);
 
             DB::commit();
         } catch (Exception $e) {
@@ -181,13 +252,189 @@ class AssessmentService extends BaseService
         }
 
         return [
-            'correctAnswers' => $correctAnswers,
-            'totalMarks' => $totalMarks,
-            'totalQuestions' => $questions->count(),
+            'data' => [
+                'correctAnswers' => $correctAnswers,
+                'totalQuestions' => $questions->count(),
+            ],
+            'message' => 'Assessment submitted successfully.',
         ];
     }
 
-    private function storeUserAnswer($attemptId, $questionId, $answer)
+
+//    public function resultDetail(string $id, string $attemptId): array
+//    {
+//        $attempt = auth()->user()->assessmentAttempts()->find($attemptId);
+//
+//        if ($attempt === null) {
+//            return [
+//                'status' => Response::HTTP_NOT_FOUND,
+//                'message' => 'Assessment attempt not found',
+//            ];
+//        }
+//
+//        $assessment = $this->getById((int)$id, ['questions.options']);
+//
+//        $questions = $assessment->questions;
+//
+//        $score = 0;
+//        $totalCorrect = 0;
+//        $totalMarks = 0;
+//        $answers = [];
+//
+//        foreach ($questions as $question) {
+//            $userAnswer = $attempt->answers->where('assessment_question_id', $question->id)->first();
+//            $correct = false;
+//            $answer = null;
+//            $mark = $question->pivot->marks;
+//            if ($userAnswer !== null) {
+//                $answer = $userAnswer->answer_content;
+//                // convert answer to int if question type is the option type
+//                switch ($question->type) {
+//                    case QuestionType::TrueFalse:
+//                    case QuestionType::MultipleChoice:
+//                        $correct = $this->checkSingleAnswer($question, $answer);
+//                        $answer = (int) $answer;
+//                        break;
+//                    case QuestionType::MultipleAnswer:
+//                        $answer = json_decode($answer, true);
+//                        $answer = array_map(function ($item) {
+//                            return (int) $item;
+//                        }, $answer);
+//
+//                        $correct = $this->checkMultipleAnswers($question, $answer);
+//                        break;
+//                    case QuestionType::FillIn:
+//                        $correct = $this->checkFillInAnswer($question, $answer);
+//                        break;
+//                    case QuestionType::Text:
+//                        $correct = true;
+//                        break;
+//                }
+//            }
+//
+//            if ($correct) {
+//                $score += $mark;
+//                $totalCorrect++;
+//            }
+//
+//            $totalMarks += $mark;
+//
+//            $answers[] = [
+//                'id' => $question->id,
+//                'content' => $question->content,
+//                'type' => QuestionType::getKey($question->type),
+//                'options' => QuestionOptionResource::collection($question->options),
+//                'userAnswer' => $answer,
+//                'correctAnswer' => $question->options->where('is_correct', true)->pluck('id')->toArray(),
+//                'isCorrect' => $correct,
+//                'marks' => $mark,
+//                'explanation' => $question->explanation->content,
+//            ];
+//        }
+//
+//        return [
+//            'id' => $attempt->id,
+//            'name' => $assessment->name,
+//            'score' => $score,
+//            'totalCorrect' => $totalCorrect,
+//            'totalMarks' => $totalMarks,
+//            'totalQuestions' => $questions->count(),
+//            'questions' => $answers,
+//        ];
+//    }
+
+    public function resultDetail(string $id, string $attemptId): array
+    {
+        $attempt = auth()->user()->assessmentAttempts()->find($attemptId);
+
+        if ($attempt === null) {
+            return [
+                'status' => Response::HTTP_NOT_FOUND,
+                'message' => 'Assessment attempt not found',
+            ];
+        }
+
+        $assessment = $this->getById((int)$id, ['questions.options']);
+        $questions = $assessment->questions;
+
+        $score = 0;
+        $totalCorrect = 0;
+        $totalMarks = 0;
+        $answers = [];
+
+        foreach ($questions as $question) {
+            $userAnswer = $attempt->answers->where('assessment_question_id', $question->id)->first();
+            $correct = false;
+            $answer = null;
+            $mark = $question->pivot->marks;
+
+            if ($userAnswer !== null) {
+                $answer = $this->formatAnswerBasedOnQuestionType($question, $userAnswer->answer_content);
+                $correct = $this->checkAnswer($question, $answer);
+            }
+
+            if ($correct) {
+                $score += $mark;
+                $totalCorrect++;
+            }
+
+            $totalMarks += $mark;
+
+            $answers[] = $this->formatQuestionResult($question, $answer, $correct, $mark);
+        }
+
+        return [
+            'data' => [
+                'id' => $attempt->id,
+                'name' => $assessment->name,
+                'score' => $score,
+                'totalCorrect' => $totalCorrect,
+                'totalMarks' => $totalMarks,
+                'totalQuestions' => $questions->count(),
+                'questions' => $answers,
+            ],
+            'message' => 'Assessment result retrieved successfully.',
+        ];
+    }
+
+    private function checkAnswer($question, $answer): bool
+    {
+        return match ($question->type) {
+            QuestionType::TrueFalse, QuestionType::MultipleChoice => $this->checkSingleAnswer($question, $answer),
+            QuestionType::MultipleAnswer => $this->checkMultipleAnswers($question, is_array($answer) ? $answer : [$answer]),
+            QuestionType::FillIn => $this->checkFillInAnswer($question, $answer),
+            QuestionType::Text => true,
+            default => false,
+        };
+    }
+
+    private function formatAnswerBasedOnQuestionType($question, $answer)
+    {
+        return match ($question->type) {
+            QuestionType::TrueFalse, QuestionType::MultipleChoice => (int)$answer,
+            QuestionType::MultipleAnswer => json_decode($answer, true),
+            QuestionType::Text, QuestionType::FillIn => $answer,
+            default => null,
+        };
+    }
+
+    private function formatQuestionResult($question, $answer, $correct, $mark): array
+    {
+        return [
+            'id' => $question->id,
+            'content' => $question->content,
+            'type' => QuestionType::getKey($question->type),
+            'options' => QuestionOptionResource::collection($question->options),
+            'userAnswer' => $answer,
+            'correctAnswer' => $question->options->where('is_correct', true)->pluck('id')->toArray(),
+            'isCorrect' => $correct,
+            'marks' => $mark,
+            'explanation' => $question->explanation ? $question->explanation->content : null,
+        ];
+    }
+
+
+    private function storeUserAnswer($attemptId, $questionId, $answer): void
     {
         $userAnswer = new AssessmentAttemptAnswer;
         $userAnswer->assessment_attempt_id = $attemptId;
@@ -211,7 +458,6 @@ class AssessmentService extends BaseService
     {
         $correctOptions = $question->options->where('is_correct', true)->pluck('id')->sort();
         $selectedOptions = collect($answers)->sort();
-
         return $selectedOptions->count() === $correctOptions->count() && $selectedOptions->diff($correctOptions)->isEmpty();
     }
 

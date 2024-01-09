@@ -100,12 +100,7 @@ Route::middleware(['api', 'auth'])->group(function () {
         Route::get('/{assessment}/questions', 'questions')->name('questions');
         Route::post('/{assessment}/attempt', 'attempt')->name('attempt');
         Route::post('/{assessment}/submit', 'submit')->name('submit');
-    });
-
-    // ASSESSMENT ROUTES
-    Route::prefix('assessments')->name('assessments.')->controller(AssessmentController::class)->group(function () {
-        Route::get('/', 'index')->name('index');
-        Route::get('/{assessment}', 'show')->name('show');
+        Route::get('/{assessment}/results/{attempt}', 'resultDetail')->name('resultDetail');
     });
 });
 
