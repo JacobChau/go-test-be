@@ -55,6 +55,7 @@ class QuestionController extends Controller
     public function show(string $id): JsonResponse
     {
         $relations = ['explanation', 'options', 'passage', 'category'];
+
         $question = $this->questionService->getById($id, $relations);
 
         return $this->sendResponse(new QuestionDetailResource($question), 'Question retrieved successfully.');

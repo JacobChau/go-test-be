@@ -22,4 +22,22 @@ class QuestionOption extends Model
     {
         return $this->morphMany(Media::class, 'mediable');
     }
+
+    public function scopeQuestion($query, $question_id)
+    {
+        if (! $question_id) {
+            return $query;
+        }
+
+        return $query->where('question_id', $question_id);
+    }
+
+    public function scopeQuestionIds($query, $question_ids)
+    {
+        if (! $question_ids) {
+            return $query;
+        }
+
+        return $query->whereIn('question_id', $question_ids);
+    }
 }

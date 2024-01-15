@@ -57,4 +57,11 @@ class QuestionOptionService extends BaseService
             $this->delete($option['id']);
         }
     }
+
+    //        $questionOptions = QuestionOption::with('question')->whereIn('question_id', $questions->pluck('id'))->get();
+
+    public function getOptionsByQuestionIds(array $questionIds, array $with = []): object
+    {
+        return $this->getModel()->with($with)->questionIds($questionIds)->get();
+    }
 }

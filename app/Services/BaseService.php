@@ -30,16 +30,23 @@ class BaseService
         $this->model->where('id', $id)->delete();
     }
 
-    public function getById(int $id, array $relations = []): object
+    public function getById(int $id, array $defaultRelations = []): object
     {
+        $relations = $defaultRelations;
+
+        if (request()->has('include')) {
+            $includeRelations = explode(',', request()->get('include'));
+            $relations = array_unique(array_merge($defaultRelations, $includeRelations));
+        }
+
         $query = $this->model->query();
         foreach ($relations as $relation) {
-            if (method_exists($this->model, $relation)) {
-                $query->with($relation);
-            }
+            $query->with($relation);
         }
 
         return $query->find($id);
+
+//        return $this->model->with($relations)->find($id);
     }
 
     public function firstOrCreate(array $conditions, array $data = []): object
@@ -69,9 +76,7 @@ class BaseService
         $orderDirection = $input['orderDir'] ?? PaginationSetting::ORDER_DIRECTION;
 
         foreach ($relations as $relation) {
-            if (method_exists($this->model, $relation)) {
-                $query->with($relation);
-            }
+            $query->with($relation);
         }
 
         if (! is_string($orderBy)) {

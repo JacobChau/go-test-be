@@ -86,4 +86,11 @@ class UserController extends Controller
             'message' => 'User deleted successfully',
         ], Response::HTTP_NO_CONTENT);
     }
+
+    public function me(): JsonResponse
+    {
+        $user = auth()->user();
+
+        return response()->json(['data' => new UserResource($user), 'message' => 'User retrieved successfully']);
+    }
 }

@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreAssessmentRequest;
 use App\Http\Requests\SubmitAssessmentRequest;
+use App\Http\Requests\UpdateAssessmentRequest;
 use App\Http\Resources\AssessmentDetailResource;
 use App\Http\Resources\AssessmentResource;
 use App\Http\Resources\QuestionDetailResource;
+use App\Models\Assessment;
 use App\Services\AssessmentService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -32,17 +35,22 @@ class AssessmentController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreAssessmentRequest $request): JsonResponse
     {
-        //
+        $assessment = $this->assessmentService->create($request->validated());
+
+        return response()->json([
+            'message' => 'Assessment created successfully',
+            'assessment' => $assessment,
+        ]);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id): JsonResponse
+    public function show(Assessment $assessment): JsonResponse
     {
-        $assessment = $this->assessmentService->getById($id);
+        $assessment = $this->assessmentService->getById($assessment->id);
 
         return $this->sendResponse(new AssessmentDetailResource($assessment), 'Assessment retrieved successfully.');
     }
@@ -50,9 +58,11 @@ class AssessmentController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateAssessmentRequest $request, Assessment $assessment): JsonResponse
     {
-        //
+        $this->assessmentService->update($assessment->id, $request->validated());
+
+        return $this->sendResponse(null, 'Assessment updated successfully.');
     }
 
     /**
@@ -89,6 +99,20 @@ class AssessmentController extends Controller
     public function resultDetail(string $id, string $attemptId): JsonResponse
     {
         $response = $this->assessmentService->resultDetail($id, $attemptId);
+
+        return $this->sendResponse($response);
+    }
+
+    public function results(): JsonResponse
+    {
+        $response = $this->assessmentService->results();
+
+        return $this->sendResponse($response);
+    }
+
+    public function management(): JsonResponse
+    {
+        $response = $this->assessmentService->management();
 
         return $this->sendResponse($response);
     }

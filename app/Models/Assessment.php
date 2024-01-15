@@ -28,4 +28,20 @@ class Assessment extends Model
     {
         return $this->hasMany(AssessmentAttempt::class);
     }
+
+    public function groups(): BelongsToMany
+    {
+        return $this->belongsToMany(Group::class, 'assessment_groups')->withTimestamps();
+    }
+
+    // SCOPES
+    public function scopePublished($query)
+    {
+        return $query->where('is_published', true);
+    }
+
+    public function scopeNotExpired($query)
+    {
+        return $query->where('valid_to', '>=', now());
+    }
 }

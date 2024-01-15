@@ -13,8 +13,6 @@ class QuestionCategoryPolicy
      */
     public function create(User $user, QuestionCategory $model): Response
     {
-        var_dump($model);
-
         return $user->isAdmin() || $user->isTeacher() ? Response::allow() : Response::deny('You do not have permission to create a category.');
     }
 

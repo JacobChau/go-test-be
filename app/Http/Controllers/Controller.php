@@ -14,6 +14,10 @@ class Controller extends BaseController
 
     public function sendResponse($result, $message = null, $code = Response::HTTP_OK): JsonResponse
     {
+        if (isset($result['status']) && $result['status'] !== Response::HTTP_OK) {
+            return response()->json(['message' => $result['message']], $result['status']);
+        }
+
         $data = $result['data'] ?? $result;
 
         if (isset($result['message'])) {
