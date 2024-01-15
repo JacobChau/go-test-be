@@ -48,9 +48,9 @@ class AssessmentController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Assessment $assessment): JsonResponse
+    public function show(string $id): JsonResponse
     {
-        $assessment = $this->assessmentService->getById($assessment->id);
+        $assessment = $this->assessmentService->getById($id, request()->all());
 
         return $this->sendResponse(new AssessmentDetailResource($assessment), 'Assessment retrieved successfully.');
     }
