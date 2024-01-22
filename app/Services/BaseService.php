@@ -45,8 +45,6 @@ class BaseService
         }
 
         return $query->find($id);
-
-//        return $this->model->with($relations)->find($id);
     }
 
     public function firstOrCreate(array $conditions, array $data = []): object
@@ -130,7 +128,19 @@ class BaseService
             $query->whereHas($searchColumn[0], function ($query) use ($searchType, $searchColumn, $searchKeyword) {
                 $this->applySearchType($query, $searchType, $searchColumn[1], $searchKeyword);
             });
-        } else {
+        } else if (str_contains($searchColumn, ',')) {
+            $searchColumns = explode(',', $searchColumn);
+            // case: search by multiple columns (ex: name,email) so if name or email contains keyword, it will be returned
+            $query->where(function ($query) use ($searchType, $searchColumns, $searchKeyword) {
+                foreach ($searchColumns as $column) {
+                    $query->orWhere(function ($query) use ($searchType, $column, $searchKeyword) {
+                        $this->applySearchType($query, $searchType, $column, $searchKeyword);
+                    });
+                }
+            });
+
+        }
+        else {
             $this->applySearchType($query, $searchType, $searchColumn, $searchKeyword);
         }
     }

@@ -2,9 +2,11 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\ResultDisplayMode;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Enum;
 
 class UpdateAssessmentRequest extends FormRequest
 {
@@ -19,6 +21,16 @@ class UpdateAssessmentRequest extends FormRequest
     }
 
     /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'resultDisplayMode' => ResultDisplayMode::coerce($this->resultDisplayMode) ?? null,
+        ]);
+    }
+
+    /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, ValidationRule|array|string>
@@ -29,9 +41,9 @@ class UpdateAssessmentRequest extends FormRequest
             'name' => 'required|string',
             'subjectId' => 'required|exists:subjects,id',
             'description' => 'nullable|string',
-            'duration' => 'required|integer',
-            'totalMarks' => 'required|numeric',
-            'passMarks' => 'nullable|numeric',
+            'duration' => 'nullable|integer',
+            'totalMarks' => 'nullable|numeric',
+            'passMarks' => 'nullable|numeric|lte:totalMarks',
             'maxAttempts' => 'nullable|integer',
             'validFrom' => 'nullable|date',
             'validTo' => 'nullable|date',
@@ -42,6 +54,8 @@ class UpdateAssessmentRequest extends FormRequest
             'questions.*.order' => 'required|integer',
             'groupIds' => 'nullable|array',
             'groupIds.*' => 'required_with:groupIds|exists:groups,id',
+            'requiredMark' => 'nullable|boolean',
+            'resultDisplayMode' =>  ['required_with:requiredMark', new Enum(ResultDisplayMode::class)],
         ];
     }
 }

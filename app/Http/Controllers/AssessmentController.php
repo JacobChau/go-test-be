@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreAssessmentRequest;
 use App\Http\Requests\SubmitAssessmentRequest;
+use App\Http\Requests\UpdateAnswerAttemptRequest;
 use App\Http\Requests\UpdateAssessmentRequest;
 use App\Http\Resources\AssessmentDetailResource;
 use App\Http\Resources\AssessmentResource;
@@ -68,9 +69,11 @@ class AssessmentController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(string $id): JsonResponse
     {
-        //
+        $this->assessmentService->delete($id);
+
+        return $this->sendResponse(null, 'Assessment deleted successfully.');
     }
 
     public function questions(string $id): JsonResponse
@@ -96,9 +99,9 @@ class AssessmentController extends Controller
         return $this->sendResponse($response);
     }
 
-    public function resultDetail(string $id, string $attemptId): JsonResponse
+    public function resultDetail(string $assessmentId, string $attemptId): JsonResponse
     {
-        $response = $this->assessmentService->resultDetail($id, $attemptId);
+        $response = $this->assessmentService->resultDetail($assessmentId, $attemptId);
 
         return $this->sendResponse($response);
     }
@@ -113,6 +116,27 @@ class AssessmentController extends Controller
     public function management(): JsonResponse
     {
         $response = $this->assessmentService->management();
+
+        return $this->sendResponse($response);
+    }
+
+    public function getResultsByAssessment(string $id): JsonResponse
+    {
+        $response = $this->assessmentService->getResultsByAssessmentId($id);
+
+        return $this->sendResponse($response);
+    }
+
+    public function updateAnswerAttempt(string $assessmentId, string $attemptId, string $id, UpdateAnswerAttemptRequest $request): JsonResponse
+    {
+        $response = $this->assessmentService->updateAnswerAttempt($assessmentId, $attemptId, $id, $request->validated());
+
+        return $this->sendResponse($response);
+    }
+
+    public function publishResult(string $assessmentId, string $attemptId): JsonResponse
+    {
+        $response = $this->assessmentService->publishResult($assessmentId, $attemptId);
 
         return $this->sendResponse($response);
     }

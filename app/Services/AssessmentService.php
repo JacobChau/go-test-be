@@ -6,22 +6,24 @@ namespace App\Services;
 
 use App\Enums\PaginationSetting;
 use App\Enums\QuestionType;
+use App\Enums\ResultDisplayMode;
 use App\Enums\UserRole;
 use App\Http\Resources\AssessmentDetailResource;
-use App\Http\Resources\AssessmentResource;
 use App\Http\Resources\AssessmentResultResource;
 use App\Http\Resources\QuestionOptionResource;
+use App\Mail\AssessmentPublished;
 use App\Models\Assessment;
+use App\Models\AssessmentAttempt;
 use App\Models\AssessmentAttemptAnswer;
-use App\Models\QuestionOption;
 use App\Services\Question\QuestionOptionService;
 use BenSampo\Enum\Exceptions\InvalidEnumMemberException;
 use DateTime;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Mail;
 use Symfony\Component\HttpFoundation\Response;
 
 class AssessmentService extends BaseService
@@ -47,17 +49,20 @@ class AssessmentService extends BaseService
                 'name' => $data['name'],
                 'subject_id' => $data['subjectId'],
                 'description' => $data['description'],
-                'duration' => $data['duration'],
-                'pass_marks' => $data['passMarks'],
-                'total_marks' => $data['totalMarks'],
-                'max_attempts' => $data['maxAttempts'],
+                'duration' => $data['duration'] ?? null,
+                'pass_marks' => $data['passMarks'] ?? null,
+                'total_marks' => $data['totalMarks'] ?? null,
+                'max_attempts' => $data['maxAttempts'] ?? null,
                 'valid_from' => $data['validFrom'] ? (new DateTime($data['validFrom']))->format('Y-m-d H:i:s') : null,
                 'valid_to' => $data['validTo'] ? (new DateTime($data['validTo']))->format('Y-m-d H:i:s') : null,
                 'is_published' => $data['isPublished'],
+                'required_mark' => $data['requiredMark'] ?? false,
+                'result_display_mode' => $data['resultDisplayMode'] ?? null,
             ]);
 
             foreach ($data['questions'] as $question) {
-                $assessment->questions()->attach($question['id'], ['marks' => $question['marks'], 'order' => $question['order']]);
+                $marks = $assessment->required_mark ? $question['marks'] : null;
+                $assessment->questions()->attach($question['id'], ['marks' => $marks, 'order' => $question['order']]);
             }
 
             foreach ($data['groupIds'] as $groupId) {
@@ -82,6 +87,20 @@ class AssessmentService extends BaseService
 
         $query->published()->notExpired();
 
+        if (isset($input['filters'])) {
+            if (isset($input['filters']['isTaken']) && $input['filters']['isTaken'] === "true") {
+                $query->isTaken(auth()->id());
+            }
+
+            if (isset($input['filters']['hasDuration']) && $input['filters']['hasDuration'] === "true") {
+                $query->hasDuration();
+            }
+        }
+
+        if (!isset($input['filters']['isTaken'])) {
+            $query->isNotTaken(auth()->id());
+        }
+
         $userGroupIds = auth()->user()->groups->pluck('id')->toArray();
 
         $query->whereHas('groups', function ($query) use ($userGroupIds) {
@@ -101,13 +120,15 @@ class AssessmentService extends BaseService
                 'name' => $data['name'],
                 'subject_id' => $data['subjectId'],
                 'description' => $data['description'],
-                'duration' => $data['duration'],
-                'pass_marks' => $data['passMarks'],
-                'total_marks' => $data['totalMarks'],
-                'max_attempts' => $data['maxAttempts'],
+                'duration' => $data['duration'] ?? $assessment->duration,
+                'pass_marks' => $data['passMarks'] ?? $assessment->pass_marks,
+                'total_marks' => $data['totalMarks'] ?? $assessment->total_marks,
+                'max_attempts' => $data['maxAttempts'] ?? $assessment->max_attempts,
                 'valid_from' => $data['validFrom'] ? (new DateTime($data['validFrom']))->format('Y-m-d H:i:s') : null,
                 'valid_to' => $data['validTo'] ? (new DateTime($data['validTo']))->format('Y-m-d H:i:s') : null,
                 'is_published' => $data['isPublished'],
+                'required_mark' => $data['requiredMark'] ?? $assessment->required_mark,
+                'result_display_mode' => $data['resultDisplayMode'] ?? $assessment->result_display_mode,
             ]);
 
             $assessment->questions()->detach();
@@ -202,13 +223,18 @@ class AssessmentService extends BaseService
                     continue;
                 }
 
-                $this->storeUserAnswer($attempt->id, $question->id, $answer['answer']);
+                $assessmentQuestionId  = $question->pivot->id;
+                $this->storeUserAnswer($attempt->id, $assessmentQuestionId, $answer['answer']);
 
                 if ($this->checkAnswer($question, $answer['answer'])) {
                     $totalMarks += $question->pivot->marks;
                     $correctAnswers++;
                 }
             }
+
+            $attempt->update([
+                'total_marks' => $totalMarks,
+            ]);
 
             DB::commit();
         } catch (Exception $e) {
@@ -226,9 +252,18 @@ class AssessmentService extends BaseService
         ];
     }
 
-    public function resultDetail(string $id, string $attemptId): array
+    public function resultDetail(string $assessmentId, string $attemptId): array
     {
-        $attempt = auth()->user()->assessmentAttempts()->find($attemptId);
+        $assessment = $this->getById((int)$assessmentId, ['questions.options', 'questions.explanation']);
+
+        if ($assessment->result_display_mode !== ResultDisplayMode::DisplayMarkAndAnswers && $assessment->created_by !== auth()->id()) {
+            return [
+                'status' => Response::HTTP_FORBIDDEN,
+                'message' => 'You do not have permission to view this assessment result.',
+            ];
+        }
+
+        $attempt = AssessmentAttempt::with('answers')->find($attemptId);
 
         if ($attempt === null) {
             return [
@@ -237,7 +272,6 @@ class AssessmentService extends BaseService
             ];
         }
 
-        $assessment = $this->getById((int)$id, ['questions.options', 'questions.explanation']);
         $questions = $assessment->questions;
         $questionOptions = $this->questionOptionService->getOptionsByQuestionIds($questions->pluck('id')->toArray(), ['question']);
 
@@ -246,9 +280,10 @@ class AssessmentService extends BaseService
         $answers = [];
 
         foreach ($questions as $question) {
-            $userAnswer = $attempt->answers->where('assessment_question_id', $question->id)->first();
+            $userAnswer = $attempt->answers->where('assessment_question_id', $question->pivot->id)->first();
             $correct = false;
             $answer = null;
+
             $mark = $question->pivot->marks;
 
             if ($userAnswer !== null) {
@@ -261,8 +296,14 @@ class AssessmentService extends BaseService
                 $totalCorrect++;
             }
 
+            $userMarks = null;
+            if ($question->type === QuestionType::Text) {
+                $userMarks = $userAnswer ? $userAnswer->marks : null;
+                $score += $userMarks ?? 0;
+            }
+
             $options = $questionOptions->where('question_id', $question->id);
-            $answers[] = $this->formatQuestionResult($question, $options, $answer, $correct, $mark);
+            $answers[] = $this->formatQuestionResult($question, $options, $answer, $correct, $userMarks, $userAnswer ? $userAnswer->answer_comment : null);
         }
 
         return [
@@ -274,6 +315,8 @@ class AssessmentService extends BaseService
                 'totalMarks' => $assessment->total_marks,
                 'totalQuestions' => $questions->count(),
                 'questions' => $answers,
+                'ownerId' => $assessment->created_by,
+                'requiredMark' => $assessment->required_mark,
             ],
             'message' => 'Assessment result retrieved successfully.',
         ];
@@ -283,7 +326,10 @@ class AssessmentService extends BaseService
     {
         $result = auth()->user()->assessmentAttempts()
             ->with('assessment')
-            ->orderBy(request()->get('orderBy', PaginationSetting::ORDER_BY), request()->get('orderDir', PaginationSetting::ORDER_DIRECTION))
+            ->whereHas('assessment', function ($query) {
+                $query->where('required_mark', true);
+            })
+            ->orderBy(request()->get('orderBy', 'created_at'), request()->get('orderDir', 'desc'))
             ->paginate(request()->get('perPage', PaginationSetting::PER_PAGE));
 
         $items = AssessmentResultResource::collection($result->getCollection());
@@ -311,13 +357,95 @@ class AssessmentService extends BaseService
         return parent::getList(AssessmentDetailResource::class, request()->all(), $query);
     }
 
-    private function checkAnswer($question, $answer): bool
+    public function getResultsByAssessmentId(string $id): array
+    {
+        $result = $this->model->find($id)->attempts()
+            ->with('user')
+            ->orderBy(request()->get('orderBy', PaginationSetting::ORDER_BY), request()->get('orderDir', PaginationSetting::ORDER_DIRECTION))
+            ->paginate(request()->get('perPage', PaginationSetting::PER_PAGE));
+
+        $items = AssessmentResultResource::collection($result->getCollection());
+
+        return [
+            'data' => $items,
+            'meta' => [
+                'total' => $result->total(),
+                'perPage' => $result->perPage(),
+                'currentPage' => $result->currentPage(),
+                'lastPage' => $result->lastPage(),
+            ],
+            'message' => 'Assessment results retrieved successfully.',
+        ];
+    }
+
+    public function updateAnswerAttempt(string $assessmentId, string $attemptId, string $assessmentQuestionId, array $data): array
+    {
+        $attemptAnswer = AssessmentAttemptAnswer::where('assessment_attempt_id', $attemptId)
+            ->where('assessment_question_id', $assessmentQuestionId)
+            ->first();
+
+        if ($attemptAnswer === null) {
+            $attemptAnswer = $this->storeUserAnswer($attemptId, $assessmentQuestionId, null);
+        }
+
+        $updateData = [];
+
+        if (array_key_exists('marks', $data)) {
+            $updateData['marks'] = $data['marks'];
+        }
+
+        if (array_key_exists('comment', $data)) {
+            $updateData['answer_comment'] = $data['comment'];
+        }
+
+        if (!empty($updateData)) {
+            $attemptAnswer->update($updateData);
+
+            $attempt = AssessmentAttempt::find($attemptId);
+            $questions = $attempt->assessment->questions;
+            $attempt->update([
+                'total_marks' => $questions->sum('marks') + $attempt->answers->sum('marks'),
+            ]);
+        }
+
+        return [
+            'data' => [
+                'marks' => $attemptAnswer->marks,
+            ],
+            'message' => 'Assessment answer updated successfully.',
+        ];
+
+    }
+
+    public function publishResult(string $assessmentId, string $attemptId): array
+    {
+        $attempt = AssessmentAttempt::find($attemptId);
+
+        if ($attempt === null) {
+            return [
+                'status' => Response::HTTP_NOT_FOUND,
+                'message' => 'Assessment attempt not found',
+            ];
+        }
+
+        $attempt->update([
+            'marked' => true,
+        ]);
+
+        Mail::to($attempt->user->email)->send(new AssessmentPublished($attempt));
+
+        return [
+            'message' => 'Assessment result published successfully.',
+        ];
+    }
+
+    private function checkAnswer($question, $answer): bool | null
     {
         return match ($question->type) {
             QuestionType::TrueFalse, QuestionType::MultipleChoice => $this->checkSingleAnswer($question, $answer),
             QuestionType::MultipleAnswer => $this->checkMultipleAnswers($question, is_array($answer) ? $answer : [$answer]),
             QuestionType::FillIn => $this->checkFillInAnswer($question, $answer),
-            QuestionType::Text => true,
+            QuestionType::Text => null,
             default => false,
         };
     }
@@ -352,27 +480,30 @@ class AssessmentService extends BaseService
     /**
      * @throws InvalidEnumMemberException
      */
-    private function formatQuestionResult($question, $options, $answer, $correct, $mark): array
+    private function formatQuestionResult($question, $options, $answer, $correct, $userMarks, $comment): array
     {
         return [
             'id' => $question->id,
+            'assessmentQuestionId' => $question->pivot->id,
             'content' => $question->content,
             'type' => QuestionType::getKey($question->type),
             'options' => QuestionOptionResource::collection($options),
             'userAnswer' => $answer,
             'correctAnswer' => $this->formatCorrectAnswerBasedOnQuestionType($question, $options->where('is_correct', true)),
             'isCorrect' => $correct,
-            'marks' => $mark,
+            'marks' => $question->pivot->marks,
+            'userMarks' => $userMarks,
             'explanation' => $question->explanation ? $question->explanation->content : null,
+            'comment' => $comment,
         ];
     }
 
 
-    private function storeUserAnswer($attemptId, $questionId, $answer): void
+    private function storeUserAnswer($attemptId, $assessmentQuestionId, $answer): AssessmentAttemptAnswer
     {
         $userAnswer = new AssessmentAttemptAnswer;
         $userAnswer->assessment_attempt_id = $attemptId;
-        $userAnswer->assessment_question_id = $questionId;
+        $userAnswer->assessment_question_id = $assessmentQuestionId;
 
         if (is_array($answer)) {
             $userAnswer->answer_content = json_encode($answer);
@@ -381,6 +512,8 @@ class AssessmentService extends BaseService
         }
 
         $userAnswer->save();
+
+        return $userAnswer;
     }
 
     private function checkSingleAnswer($question, $answer): bool

@@ -99,9 +99,19 @@ Route::middleware(['api', 'role:'.UserRole::Admin.'|'.UserRole::Teacher])->group
     // ASSESSMENT ROUTES
     Route::prefix('assessments')->name('assessments.')->controller(AssessmentController::class)->group(function () {
         Route::get('/management', 'management')->name('management');
+        Route::put('/{assessment}/results/{attempt}/publish', 'publishResult')->name('publishResult');
+        Route::put('/{assessment}/results/{attempt}/answers/{id}', 'updateAnswerAttempt')->name('updateAnswerAttempt');
+        Route::get('/{assessment}/results', 'getResultsByAssessment')->name('getResultsByAssessment');
         Route::post('/', 'store')->name('store');
         Route::put('/{assessment}', 'update')->name('update');
         Route::delete('/{assessment}', 'destroy')->name('destroy');
+    });
+
+    // GROUP ROUTES
+    Route::prefix('groups')->name('groups.')->controller(GroupController::class)->group(function () {
+        Route::post('/', 'store')->name('store');
+        Route::put('/{group}', 'update')->name('update');
+        Route::delete('/{group}', 'destroy')->name('destroy');
     });
 });
 
@@ -118,6 +128,7 @@ Route::middleware(['api', 'auth'])->group(function () {
     // USER ROUTES
     Route::prefix('users')->name('users.')->controller(UserController::class)->group(function () {
         Route::get('/', 'index')->name('index');
+        Route::get('/groups/{group}/not-in-group', 'getNotInGroup')->name('getNotInGroup');
         Route::get('/me', 'me')->name('me');
         Route::get('/{user}', 'show')->name('show');
     });
@@ -160,6 +171,9 @@ Route::middleware(['api', 'auth'])->group(function () {
     // GROUP ROUTES
     Route::prefix('groups')->name('groups.')->controller(GroupController::class)->group(function () {
         Route::get('/', 'index')->name('index');
+        Route::get('/{group}/members', 'getMembers')->name('getMembers');
+        Route::post('/{group}/members', 'addMembers')->name('addMembers');
+        Route::delete('/{group}/members/{user}', 'removeMember')->name('removeMember');
         Route::get('/{group}', 'show')->name('show');
     });
 });

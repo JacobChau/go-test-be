@@ -34,7 +34,8 @@ class Question extends Model
 
     public function assessments(): BelongsToMany
     {
-        return $this->belongsToMany(Assessment::class, 'assessment_questions')->withTimestamps()->withPivot('marks');
+        return $this->belongsToMany(Assessment::class, 'assessment_questions')
+            ->using(AssessmentQuestion::class)->withTimestamps()->withPivot('id', 'marks', 'order');
     }
 
     public function category(): BelongsTo

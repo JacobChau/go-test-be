@@ -45,7 +45,7 @@ class QuestionController extends Controller
 
         return response()->json([
             'message' => 'Question created successfully',
-            'question' => $question,
+            'data' => new QuestionResource($question),
         ]);
     }
 

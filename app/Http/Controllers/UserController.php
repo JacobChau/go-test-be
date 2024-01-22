@@ -93,4 +93,11 @@ class UserController extends Controller
 
         return response()->json(['data' => new UserResource($user), 'message' => 'User retrieved successfully']);
     }
+
+    public function getNotInGroup(int $groupId): JsonResponse
+    {
+        $users = $this->userService->getNotInGroup($groupId);
+
+        return $this->sendResponse($users, 'Users retrieved successfully');
+    }
 }
