@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\Question;
 
 use App\Enums\QuestionType;
+use App\Enums\UserRole;
 use App\Http\Resources\QuestionResource;
 use App\Models\Question;
 use App\Services\BaseService;
@@ -84,6 +85,10 @@ class QuestionService extends BaseService
     {
         $relations = ['category'];
         $query = $this->getModel()->query();
+
+        if (auth()->user()->role !== UserRole::Admin) {
+            $query->where('created_by', auth()->id());
+        }
 
         if (isset($input['filters'])) {
             if (isset($input['filters']['category'])) {

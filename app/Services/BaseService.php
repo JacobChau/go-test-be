@@ -30,16 +30,21 @@ class BaseService
         $this->model->where('id', $id)->delete();
     }
 
-    public function getById(int $id, array $relations = []): object
+    public function getById(int $id, array $defaultRelations = []): object
     {
-        $query = $this->model->query();
-        foreach ($relations as $relation) {
-            if (method_exists($this->model, $relation)) {
-                $query->with($relation);
-            }
+        $relations = $defaultRelations;
+
+        if (request()->has('include')) {
+            $includeRelations = explode(',', request()->get('include'));
+            $relations = array_unique(array_merge($defaultRelations, $includeRelations));
         }
 
-        return $query->findOrFail($id);
+        $query = $this->model->query();
+        foreach ($relations as $relation) {
+            $query->with($relation);
+        }
+
+        return $query->find($id);
     }
 
     public function firstOrCreate(array $conditions, array $data = []): object
@@ -69,9 +74,7 @@ class BaseService
         $orderDirection = $input['orderDir'] ?? PaginationSetting::ORDER_DIRECTION;
 
         foreach ($relations as $relation) {
-            if (method_exists($this->model, $relation)) {
-                $query->with($relation);
-            }
+            $query->with($relation);
         }
 
         if (! is_string($orderBy)) {
@@ -125,7 +128,19 @@ class BaseService
             $query->whereHas($searchColumn[0], function ($query) use ($searchType, $searchColumn, $searchKeyword) {
                 $this->applySearchType($query, $searchType, $searchColumn[1], $searchKeyword);
             });
-        } else {
+        } else if (str_contains($searchColumn, ',')) {
+            $searchColumns = explode(',', $searchColumn);
+            // case: search by multiple columns (ex: name,email) so if name or email contains keyword, it will be returned
+            $query->where(function ($query) use ($searchType, $searchColumns, $searchKeyword) {
+                foreach ($searchColumns as $column) {
+                    $query->orWhere(function ($query) use ($searchType, $column, $searchKeyword) {
+                        $this->applySearchType($query, $searchType, $column, $searchKeyword);
+                    });
+                }
+            });
+
+        }
+        else {
             $this->applySearchType($query, $searchType, $searchColumn, $searchKeyword);
         }
     }

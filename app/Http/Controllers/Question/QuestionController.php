@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Question;
 
+use App\Enums\QuestionType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreQuestionRequest;
 use App\Http\Requests\UpdateQuestionRequest;
@@ -10,7 +11,9 @@ use App\Http\Resources\QuestionResource;
 use App\Models\Question;
 use App\Services\Question\QuestionService;
 use Exception;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Str;
 
 class QuestionController extends Controller
 {
@@ -42,7 +45,7 @@ class QuestionController extends Controller
 
         return response()->json([
             'message' => 'Question created successfully',
-            'question' => $question,
+            'data' => new QuestionResource($question),
         ]);
     }
 
@@ -52,6 +55,7 @@ class QuestionController extends Controller
     public function show(string $id): JsonResponse
     {
         $relations = ['explanation', 'options', 'passage', 'category'];
+
         $question = $this->questionService->getById($id, $relations);
 
         return $this->sendResponse(new QuestionDetailResource($question), 'Question retrieved successfully.');
@@ -72,8 +76,10 @@ class QuestionController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(string $id) : JsonResponse
     {
-        //
+        $this->questionService->delete($id);
+
+        return $this->sendResponse(null, 'Question deleted successfully.');
     }
 }

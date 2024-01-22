@@ -9,17 +9,18 @@ class AssessmentResource extends JsonApiResource
 {
     public function toAttributes(Request $request): array
     {
+        $startedAt = $this->attempts->isNotEmpty() ? $this->attempts->first()->created_at : null;
+
         return [
             'name' => $this->name,
-            'subject' => $this->subject->name,
-            'description' => $this->description,
-            'duration' => $this->duration,
-            'passMarks' => $this->pass_marks,
-            'totalMarks' => $this->total_marks,
-            'maxAttempts' => $this->max_attempts,
-            'validFrom' => $this->valid_from,
-            'validTo' => $this->valid_to,
+            'thumbnail' => $this->thumbnail,
             'isPublished' => $this->is_published,
+            'duration' => $this->duration,
+            'totalMark' => $this->total_marks,
+            'totalQuestions' => $this->questions()->count(),
+            'subject' => SubjectResource::make($this->subject),
+            'startedAt' => $startedAt,
+            'publishedAt' => $this->when($this->is_published, $this->updated_at),
         ];
     }
 }

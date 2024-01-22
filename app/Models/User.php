@@ -142,4 +142,9 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
     {
         return $verified ? $query->whereNotNull('email_verified_at') : $query->whereNull('email_verified_at');
     }
+
+    public function scopeRememberToken($query, string $refreshToken)
+    {
+        return $query->where('remember_token', $refreshToken);
+    }
 }

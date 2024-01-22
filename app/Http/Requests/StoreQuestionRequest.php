@@ -36,9 +36,10 @@ class StoreQuestionRequest extends FormRequest
     {
         $rules = [
             'content' => 'required|string',
-            'explanation' => 'string',
+            'explanation' => 'string|nullable',
             'categoryId' => 'required|exists:question_categories,id',
             'type' => ['required', new Enum(QuestionType::class)],
+            'passageId' => 'nullable|exists:passages,id',
         ];
 
         if ($this->input('type')->key !== QuestionType::fromValue(QuestionType::Text)->key) {

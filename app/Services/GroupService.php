@@ -17,4 +17,14 @@ class GroupService extends BaseService
     {
         return $this->model;
     }
+
+    public function removeMember(int $groupId, int $userId): void
+    {
+        $this->model->find($groupId)->users()->detach($userId);
+    }
+
+    public function addMembers(int $groupId, array $userIds): void
+    {
+        $this->model->find($groupId)->users()->attach($userIds);
+    }
 }

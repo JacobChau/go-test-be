@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 
 class AuthService extends BaseService
@@ -19,7 +20,7 @@ class AuthService extends BaseService
         $this->userService = $userService;
     }
 
-    public function loginWithGoogle(string $accessToken): string
+    public function loginWithGoogle(string $accessToken): array
     {
         $results = $this->getUserInfoFromGoogle($accessToken);
 
@@ -35,13 +36,22 @@ class AuthService extends BaseService
         return $this->loginAndReturnToken($user);
     }
 
-    public function login(array $credentials): string
+    public function login(array $credentials): array
     {
         if (! $token = auth()->attempt($credentials)) {
-            return '';
+            return [];
         }
 
-        return $token;
+        $rememberToken = Str::random(32);
+
+        $this->userService->update(auth()->id(), [
+            'remember_token' => $rememberToken,
+        ]);
+
+        return [
+            'accessToken' => $token,
+            'refreshToken' => $rememberToken,
+        ];
     }
 
     public function forgotPassword(string $email): string
@@ -86,6 +96,27 @@ class AuthService extends BaseService
         $request->user()->sendEmailVerificationNotification();
     }
 
+    public function refreshToken(string $refreshToken): array
+    {
+        $user = $this->userService->findByRememberToken($refreshToken);
+
+        if (! $user) {
+            return [];
+        }
+
+        // renew remember token
+        $rememberToken = Str::random(32);
+
+        $this->userService->update($user->id, [
+            'remember_token' => $rememberToken,
+        ]);
+
+        return [
+            'accessToken' => auth()->tokenById($user->id),
+            'refreshToken' => $rememberToken,
+        ];
+    }
+
     private function checkIfEmailVerified(Request $request): void
     {
         if ($request->user()->hasVerifiedEmail()) {
@@ -103,10 +134,20 @@ class AuthService extends BaseService
         return json_decode($response->getBody()->getContents());
     }
 
-    private function loginAndReturnToken($user)
+    private function loginAndReturnToken($user): array
     {
         auth()->login($user);
 
-        return auth()->tokenById($user->id);
+        $rememberToken = Str::random(32);
+
+        $this->userService->update(auth()->id(), [
+            'remember_token' => $rememberToken,
+        ]);
+
+        return [
+            'accessToken' => auth()->tokenById(auth()->id()),
+            'refreshToken' => $rememberToken,
+        ];
+
     }
 }

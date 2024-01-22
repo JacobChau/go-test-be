@@ -34,6 +34,7 @@ Route::middleware('api')->group(function () {
             Route::post('/login', 'login')->name('login');
             Route::post('/register', 'register')->name('register');
             Route::post('/google', 'loginWithGoogle')->name('google');
+            Route::post('/refresh', 'refresh')->name('refresh');
         });
 
         // PasswordController routes
@@ -43,7 +44,9 @@ Route::middleware('api')->group(function () {
             Route::put('/change-password', 'change')->name('change');
         });
 
-        // VerificationController routes
+    });
+    // VerificationController routes
+    Route::prefix('auth')->name('verification.')->group(function () {
         Route::controller(VerificationController::class)->group(function () {
             Route::get('/email/verify/{id}/{hash}', 'verify')->name('verify');
             Route::post('/email/resend', 'resend')->name('resend');
@@ -51,62 +54,8 @@ Route::middleware('api')->group(function () {
     });
 });
 
-Route::middleware(['api', 'auth'])->group(function () {
-    // AUTHENTICATION ROUTES
-    Route::prefix('auth')->name('auth.')->group(function () {
-        // AuthController routes
-        Route::controller(AuthController::class)->group(function () {
-            Route::get('/me', 'me')->name('me');
-            Route::get('/refresh', 'refresh')->name('refresh');
-            Route::post('/logout', 'logout')->name('logout');
-        });
-    });
-
-    // USER ROUTES
-    Route::prefix('users')->name('users.')->controller(UserController::class)->group(function () {
-        Route::get('/', 'index')->name('index');
-        Route::get('/{user}', 'show')->name('show');
-    });
-
-    // SUBJECT ROUTES
-    Route::prefix('subjects')->name('subjects.')->controller(SubjectController::class)->group(function () {
-        Route::get('/', 'index')->name('index');
-        Route::get('/{subject}', 'show')->name('show');
-    });
-
-    // PASSAGE ROUTES
-    Route::prefix('passages')->name('passages.')->controller(PassageController::class)->group(function () {
-        Route::get('/', 'index')->name('index');
-        Route::get('/{passage}', 'show')->name('show');
-    });
-
-    // QUESTION ROUTES
-    Route::prefix('questions')->name('questions.')->controller(QuestionController::class)->group(function () {
-        Route::get('/', 'index')->name('index');
-        Route::get('/{question}', 'show')->name('show');
-    });
-
-    // QUESTION CATEGORY ROUTES
-    Route::prefix('categories')->name('categories.')->controller(QuestionCategoryController::class)->group(function () {
-        Route::get('/', 'index')->name('index');
-        Route::get('/{category}', 'show')->name('show');
-    });
-
-    // GROUP ROUTES
-    Route::prefix('groups')->name('groups.')->controller(GroupController::class)->group(function () {
-        Route::get('/', 'index')->name('index');
-        Route::get('/{group}', 'show')->name('show');
-    });
-
-    // ASSESSMENT ROUTES
-    Route::prefix('assessments')->name('assessments.')->controller(AssessmentController::class)->group(function () {
-        Route::get('/', 'index')->name('index');
-        Route::get('/{assessment}', 'show')->name('show');
-    });
-});
-
 // Group all routes that require specific role middleware
-Route::middleware(['api', 'role:'.UserRole::Admin])->group(function () {
+Route::middleware(['api', 'role:'.UserRole::Admin.'|'.UserRole::Teacher])->group(function () {
     // USER ROUTES
     Route::prefix('users')->name('users.')->controller(UserController::class)->group(function () {
         Route::post('/', 'store')->name('store');
@@ -149,8 +98,84 @@ Route::middleware(['api', 'role:'.UserRole::Admin])->group(function () {
 
     // ASSESSMENT ROUTES
     Route::prefix('assessments')->name('assessments.')->controller(AssessmentController::class)->group(function () {
+        Route::get('/management', 'management')->name('management');
+        Route::put('/{assessment}/results/{attempt}/publish', 'publishResult')->name('publishResult');
+        Route::put('/{assessment}/results/{attempt}/answers/{id}', 'updateAnswerAttempt')->name('updateAnswerAttempt');
+        Route::get('/{assessment}/results', 'getResultsByAssessment')->name('getResultsByAssessment');
         Route::post('/', 'store')->name('store');
         Route::put('/{assessment}', 'update')->name('update');
         Route::delete('/{assessment}', 'destroy')->name('destroy');
     });
+
+    // GROUP ROUTES
+    Route::prefix('groups')->name('groups.')->controller(GroupController::class)->group(function () {
+        Route::post('/', 'store')->name('store');
+        Route::put('/{group}', 'update')->name('update');
+        Route::delete('/{group}', 'destroy')->name('destroy');
+    });
 });
+
+Route::middleware(['api', 'auth'])->group(function () {
+    // AUTHENTICATION ROUTES
+    Route::prefix('auth')->name('auth.')->group(function () {
+        // AuthController routes
+        Route::controller(AuthController::class)->group(function () {
+            Route::get('/me', 'me')->name('me');
+            Route::post('/logout', 'logout')->name('logout');
+        });
+    });
+
+    // USER ROUTES
+    Route::prefix('users')->name('users.')->controller(UserController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/groups/{group}/not-in-group', 'getNotInGroup')->name('getNotInGroup');
+        Route::get('/me', 'me')->name('me');
+        Route::get('/{user}', 'show')->name('show');
+    });
+
+    // SUBJECT ROUTES
+    Route::prefix('subjects')->name('subjects.')->controller(SubjectController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/{subject}', 'show')->name('show');
+    });
+
+    // PASSAGE ROUTES
+    Route::prefix('passages')->name('passages.')->controller(PassageController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/{passage}', 'show')->name('show');
+    });
+
+    // QUESTION ROUTES
+    Route::prefix('questions')->name('questions.')->controller(QuestionController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/{question}', 'show')->name('show');
+    });
+
+    // QUESTION CATEGORY ROUTES
+    Route::prefix('categories')->name('categories.')->controller(QuestionCategoryController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/{category}', 'show')->name('show');
+    });
+
+    // ASSESSMENT ROUTES
+    Route::prefix('assessments')->name('assessments.')->controller(AssessmentController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/results', 'results')->name('results');
+        Route::get('/{assessment}/questions', 'questions')->name('questions');
+        Route::post('/{assessment}/attempt', 'attempt')->name('attempt');
+        Route::post('/{assessment}/submit', 'submit')->name('submit');
+        Route::get('/{assessment}/results/{attempt}', 'resultDetail')->name('resultDetail');
+        Route::get('/{assessment}', 'show')->name('show');
+    });
+
+    // GROUP ROUTES
+    Route::prefix('groups')->name('groups.')->controller(GroupController::class)->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/{group}/members', 'getMembers')->name('getMembers');
+        Route::post('/{group}/members', 'addMembers')->name('addMembers');
+        Route::delete('/{group}/members/{user}', 'removeMember')->name('removeMember');
+        Route::get('/{group}', 'show')->name('show');
+    });
+});
+
+

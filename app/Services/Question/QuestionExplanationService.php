@@ -42,8 +42,6 @@ class QuestionExplanationService extends BaseService
             return;
         }
 
-        var_dump($explanationId, $questionId);
-
         $explanation = $this->model->updateOrCreate([
             'id' => $explanationId,
             'question_id' => $questionId,

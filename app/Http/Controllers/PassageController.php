@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePassageRequest;
 use App\Http\Requests\UpdatePassageRequest;
+use App\Http\Resources\PassageDetailResource;
 use App\Http\Resources\PassageResource;
+use App\Models\Passage;
 use App\Services\PassageService;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,7 +25,7 @@ class PassageController extends Controller
      */
     public function index(): JsonResponse
     {
-        $passages = $this->passageService->getList(PassageResource::class);
+        $passages = $this->passageService->getList(PassageResource::class, request()->all());
 
         return $this->sendResponse($passages, 'Passages retrieved successfully');
     }
@@ -49,15 +51,15 @@ class PassageController extends Controller
     {
         $passage = $this->passageService->getById($id);
 
-        return $this->sendResponse(new PassageResource($passage), 'Passage retrieved successfully');
+        return $this->sendResponse(new PassageDetailResource($passage), 'Passage retrieved successfully');
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdatePassageRequest $request, string $id): JsonResponse
+    public function update(UpdatePassageRequest $request, Passage $passage): JsonResponse
     {
-        $this->passageService->update($id, $request->validated());
+        $this->passageService->update($passage->id, $request->validated());
 
         return $this->sendResponse(
             null,

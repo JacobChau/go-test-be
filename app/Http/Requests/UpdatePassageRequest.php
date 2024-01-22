@@ -25,8 +25,8 @@ class UpdatePassageRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'string',
-            'content' => 'string',
+            'title' => 'string|required',
+            'content' => 'string|required',
         ];
     }
 }

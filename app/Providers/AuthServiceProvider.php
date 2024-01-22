@@ -3,10 +3,14 @@
 namespace App\Providers;
 
 // use Illuminate\Support\Facades\Gate;
+use App\Models\Assessment;
+use App\Models\Group;
 use App\Models\Passage;
 use App\Models\Question;
 use App\Models\Subject;
 use App\Models\User;
+use App\Policies\AssessmentPolicy;
+use App\Policies\GroupPolicy;
 use App\Policies\PassagePolicy;
 use App\Policies\QuestionPolicy;
 use App\Policies\SubjectPolicy;
@@ -26,6 +30,8 @@ class AuthServiceProvider extends ServiceProvider
         Subject::class => SubjectPolicy::class,
         Passage::class => PassagePolicy::class,
         Question::class => QuestionPolicy::class,
+        Assessment::class => AssessmentPolicy::class,
+        Group::class => GroupPolicy::class,
     ];
 
     /**

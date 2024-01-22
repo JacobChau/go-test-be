@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginGoogleRequest;
 use App\Http\Requests\LoginRequest;
+use App\Http\Requests\RefreshTokenRequest;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Resources\UserResource;
 use App\Services\AuthService;
@@ -46,9 +47,9 @@ class AuthController extends Controller
      */
     public function login(LoginRequest $request): JsonResponse
     {
-        $token = $this->authService->login($request->validated());
+        $response = $this->authService->login($request->validated());
 
-        if (! $token) {
+        if (! $response) {
             return response()->json([
                 'message' => 'Invalid credentials',
             ], Response::HTTP_UNAUTHORIZED);
@@ -56,7 +57,8 @@ class AuthController extends Controller
 
         return $this->sendResponse([
             'user' => new UserResource(auth()->user()),
-            'accessToken' => $token,
+            'accessToken' => $response['accessToken'],
+            'refreshToken' => $response['refreshToken'],
         ], 'User logged in successfully');
     }
 
@@ -71,10 +73,21 @@ class AuthController extends Controller
     /**
      * Refresh a token.
      */
-    public function refresh(): JsonResponse
+    public function refresh(RefreshTokenRequest $request): JsonResponse
     {
+        $response = $this->authService->refreshToken($request->validated()['refreshToken']);
+
+        if (! $response) {
+            return $this->sendResponse(
+                null,
+                'Invalid token',
+                Response::HTTP_UNAUTHORIZED
+            );
+        }
+
         return $this->sendResponse([
-            'accessToken' => auth()->refresh(),
+            'accessToken' => $response['accessToken'],
+            'refreshToken' => $response['refreshToken'],
         ], 'Token refreshed successfully');
     }
 
@@ -84,9 +97,9 @@ class AuthController extends Controller
     public function loginWithGoogle(LoginGoogleRequest $request): JsonResponse
     {
         $validated = $request->validated();
-        $token = $this->authService->loginWithGoogle($validated['accessToken']);
+        $response = $this->authService->loginWithGoogle($validated['accessToken']);
 
-        if (! $token) {
+        if (! $response) {
             return $this->sendResponse(
                 null,
                 'Invalid credentials',
@@ -95,7 +108,8 @@ class AuthController extends Controller
         }
 
         return $this->sendResponse([
-            'accessToken' => $token,
+            'accessToken' => $response['accessToken'],
+            'refreshToken' => $response['refreshToken'],
         ], 'User logged in successfully');
     }
 }
