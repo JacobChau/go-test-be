@@ -23,7 +23,6 @@ class AssessmentResultResource extends JsonApiResource
             'thumbnail' => $this->assessment->thumbnail,
             'startedAt' => $this->created_at,
             'user' => $this->when($userLoaded, UserResource::make($this->user)),
-            'displayMode' => $this->when($this->assessment->result_display_mode, ResultDisplayMode::getKey($this->assessment->result_display_mode)),
             'marked' => $this->marked,
             'requiredMark' => $this->assessment->required_mark,
             'fromOwner' => false,
@@ -32,6 +31,8 @@ class AssessmentResultResource extends JsonApiResource
         if (auth()->user()->role === UserRole::Admin || $this->assessment->created_by === auth()->user()->id) {
             $response['displayMode'] = ResultDisplayMode::getKey(ResultDisplayMode::DisplayMarkAndAnswers);
             $response['fromOwner'] = true;
+        } else if ($this->assessment->result_display_mode !== null) {
+            $response['displayMode'] = ResultDisplayMode::getKey($this->assessment->result_display_mode);
         }
 
         switch ($this->assessment->result_display_mode) {

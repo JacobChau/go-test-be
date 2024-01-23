@@ -9,7 +9,12 @@ class AssessmentResource extends JsonApiResource
 {
     public function toAttributes(Request $request): array
     {
-        $startedAt = $this->attempts->isNotEmpty() ? $this->attempts->first()->created_at : null;
+        $startedAt = $this->whenLoaded('attempts', function () {
+            return $this->attempts->find(function ($attempt) {
+                return $attempt->user_id === auth()->user()->id;
+            })->created_at ?? null;
+        });
+
 
         return [
             'name' => $this->name,

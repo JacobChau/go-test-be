@@ -317,6 +317,13 @@ class AssessmentService extends BaseService
                 'questions' => $answers,
                 'ownerId' => $assessment->created_by,
                 'requiredMark' => $assessment->required_mark,
+                'user' => [
+                    'id' => $attempt->user->id,
+                    'name' => $attempt->user->name,
+                    'email' => $attempt->user->email,
+                    'avatar' => $attempt->user->avatar,
+                ],
+                'marked' => $attempt->marked,
             ],
             'message' => 'Assessment result retrieved successfully.',
         ];
