@@ -13,11 +13,6 @@ class GroupService extends BaseService
         $this->model = $group;
     }
 
-    public function getModel(): Group
-    {
-        return $this->model;
-    }
-
     public function removeMember(int $groupId, int $userId): void
     {
         $this->model->find($groupId)->users()->detach($userId);

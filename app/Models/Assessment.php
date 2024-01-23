@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\HasCreatedBy;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Assessment extends Model
 {
-    use HasCreatedBy;
+    use HasCreatedBy, HasFactory;
 
     protected $fillable = ['name', 'description', 'total_marks', 'pass_marks', 'max_attempts', 'is_published', 'thumbnail', 'duration', 'valid_from', 'valid_to', 'subject_id', 'result_display_mode', 'required_mark'];
 

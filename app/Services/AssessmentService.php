@@ -21,6 +21,7 @@ use DateTime;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Mail;
@@ -81,12 +82,8 @@ class AssessmentService extends BaseService
     public function getList(?string $resourceClass = null, array $input = [], ?Builder $query = null, array $relations = []): array
     {
         $query = $query ?? $this->model->query();
-        if (auth()->user()->role === UserRole::Admin) {
-            return parent::getList($resourceClass, $input, $query, $relations);
-        }
 
-        $query->published()->notExpired();
-
+        // Apply common filters for all roles
         if (isset($input['filters'])) {
             if (isset($input['filters']['isTaken']) && $input['filters']['isTaken'] === "true") {
                 $query->isTaken(auth()->id());
@@ -97,15 +94,19 @@ class AssessmentService extends BaseService
             }
         }
 
-        if (!isset($input['filters']['isTaken'])) {
-            $query->isNotTaken(auth()->id());
+        // Apply role-specific filters and conditions
+        if (auth()->user()->role !== UserRole::Admin) {
+            $query->published()->notExpired();
+
+            if (!isset($input['filters']['isTaken'])) {
+                $query->isNotTaken(auth()->id());
+            }
+
+            $userGroupIds = auth()->user()->groups->pluck('id')->toArray();
+            $query->whereHas('groups', function ($query) use ($userGroupIds) {
+                $query->whereIn('groups.id', $userGroupIds);
+            });
         }
-
-        $userGroupIds = auth()->user()->groups->pluck('id')->toArray();
-
-        $query->whereHas('groups', function ($query) use ($userGroupIds) {
-            $query->whereIn('groups.id', $userGroupIds);
-        });
 
         return parent::getList($resourceClass, $input, $query, $relations);
     }
@@ -149,9 +150,20 @@ class AssessmentService extends BaseService
     }
 
 
+    /**
+     * @throws Exception
+     */
     public function getQuestions(string $id): Collection
     {
+        if (!is_numeric($id)) {
+            throw new ModelNotFoundException('Invalid ID provided');
+        }
+
         $assessment = $this->model->with('questions.options')->find($id);
+
+        if ($assessment === null) {
+            throw new ModelNotFoundException('Assessment not found');
+        }
 
         return $assessment->questions;
     }
@@ -205,10 +217,7 @@ class AssessmentService extends BaseService
             $attempt = auth()->user()->assessmentAttempts()->find($data['attemptId']);
 
             if ($attempt === null) {
-                return [
-                    'message' => 'Assessment attempt not found',
-                    'status' => Response::HTTP_NOT_FOUND,
-                ];
+                throw new ModelNotFoundException('Assessment attempt not found');
             }
 
             $assessment = $this->getById((int)$id, ['questions.options']);
@@ -252,6 +261,9 @@ class AssessmentService extends BaseService
         ];
     }
 
+    /**
+     * @throws InvalidEnumMemberException
+     */
     public function resultDetail(string $assessmentId, string $attemptId): array
     {
         $assessment = $this->getById((int)$assessmentId, ['questions.options', 'questions.explanation']);
@@ -353,6 +365,9 @@ class AssessmentService extends BaseService
         ];
     }
 
+    /**
+     * @throws \ReflectionException
+     */
     public function management(): array
     {
         $query = $query ?? $this->model->query();
@@ -418,6 +433,7 @@ class AssessmentService extends BaseService
         return [
             'data' => [
                 'marks' => $attemptAnswer->marks,
+                'comment' => $attemptAnswer->answer_comment ?? null,
             ],
             'message' => 'Assessment answer updated successfully.',
         ];
@@ -432,6 +448,14 @@ class AssessmentService extends BaseService
             return [
                 'status' => Response::HTTP_NOT_FOUND,
                 'message' => 'Assessment attempt not found',
+            ];
+        }
+
+        $assessment = $this->getById((int)$assessmentId);
+        if ($assessment->result_display_mode === null) {
+            return [
+                'status' => Response::HTTP_BAD_REQUEST,
+                'message' => 'Result display mode is not set',
             ];
         }
 

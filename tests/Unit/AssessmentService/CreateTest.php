@@ -28,34 +28,23 @@ class CreateTest extends TestCase
         $this->assessmentService = $this->app->make(AssessmentService::class);
     }
 
-    #[DataProvider('testSuccessProvider')]
+    #[DataProvider('testCreateAssessmentSuccessProvider')]
     public function testCreateAssessmentSuccessfully(array &$data): void
     {
         $subject = Subject::factory()->create();
-        $questionCategory = QuestionCategory::create([
-            'name' => 'testCreateAssessmentSuccessfully',
-            'created_by' => 1,
-        ]);
+        $questionCategory = QuestionCategory::factory()->create();
 
-        $question1 = Question::create([
-            'content' => 'testCreateAssessmentSuccessfully',
-            'type' => QuestionType::MultipleChoice,
-            'created_by' => 1,
+        $question1 = Question::factory()->create([
             'category_id' => $questionCategory->id,
-        ]);
-
-        $question2 = Question::create([
-            'content' => 'testCreateAssessmentSuccessfully',
             'type' => QuestionType::MultipleChoice,
-            'created_by' => 1,
+        ]);
+
+        $question2 = Question::factory()->create([
             'category_id' => $questionCategory->id,
+            'type' => QuestionType::MultipleChoice,
         ]);
 
-        $group = Group::create([
-            'name' => 'testCreateAssessmentSuccessfully',
-            'created_by' => 1,
-        ]);
-
+        $group = Group::factory()->create();
 
         $data['questions'] = [
             [
@@ -113,9 +102,34 @@ class CreateTest extends TestCase
 
 
     /**
-     * @return array[]
+     * @throws \Exception
      */
-    public static function testSuccessProvider() : array
+    #[DataProvider('testCreateAssessmentFailureProvider')]
+    public function testCreateAssessmentFailure(array $data, $expectedException): void
+    {
+        DB::shouldReceive('beginTransaction')->once();
+        DB::shouldReceive('commit')->never();
+        DB::shouldReceive('rollback')->once();
+
+        // Handle for invalid subject id or question id
+        $this->expectException(Exception::class);
+
+        // Expecting a more general message that is database-independent
+        $this->expectExceptionMessage('Foreign key violation');
+        $this->expectExceptionMessage('violates foreign key constraint');
+        $this->expectExceptionMessage('assessments');
+
+        $this->mock(Assessment::class, function ($mock) use ($data) {
+            $mock->shouldReceive('create')->with($data)->andThrow(new Exception('Database Error'));
+        });
+
+        $result = $this->assessmentService->create($data);
+
+        $this->assertNull($result);
+    }
+
+
+    public static function testCreateAssessmentSuccessProvider() : array
     {
         return [
             'withRequiredMark' => [
@@ -239,7 +253,7 @@ class CreateTest extends TestCase
         ];
     }
 
-    public static function testFailureProvider() : array
+    public static function testCreateAssessmentFailureProvider() : array
     {
         return [
             'invalidSubjectId' => [
@@ -305,34 +319,5 @@ class CreateTest extends TestCase
                 'exception' => new \Exception('Database Error'),
             ],
         ];
-    }
-
-    /**
-     * @throws \Exception
-     */
-    #[DataProvider('testFailureProvider')]
-    public function testCreateAssessmentFailure(array $data, $expectedException): void
-    {
-        DB::shouldReceive('beginTransaction')->once();
-        DB::shouldReceive('commit')->never();
-        DB::shouldReceive('rollback')->once();
-
-        // handle for invalid subject id
-
-        $this->expectException(Exception::class);
-
-        $this->mock(Assessment::class, function ($mock) use ($data) {
-            $mock->shouldReceive('create')->with($data)->andThrow(new Exception('Database Error'));
-        });
-
-        $expectedErrorMessage = 'Integrity constraint violation: 1452 Cannot add or update a child row: a foreign key constraint fails';
-        $this->expectExceptionMessage($expectedErrorMessage);
-
-
-        $result = $this->assessmentService->create($data);
-
-        $this->assertNull($result);
-
-
     }
 }

@@ -11,6 +11,9 @@
         <testsuite name="Assessments">
             <directory>tests/Unit/AssessmentService</directory>
         </testsuite>
+        <testsuite name="Subject">
+            <directory>tests/Unit/SubjectService</directory>
+        </testsuite>
         <testsuite name="Feature">
             <directory>tests/Feature</directory>
         </testsuite>
@@ -29,4 +32,11 @@
         <env name="SESSION_DRIVER" value="array"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
     </php>
+    <coverage>
+        <report>
+            <clover outputFile="coverage-report/clover.xml"/>
+            <html outputDirectory="coverage-report"/>
+        </report>
+    </coverage>
+
 </phpunit>

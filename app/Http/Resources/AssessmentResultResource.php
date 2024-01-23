@@ -2,10 +2,13 @@
 
 namespace App\Http\Resources;
 
+use App\Enums\QuestionType;
 use App\Enums\ResultDisplayMode;
 use App\Enums\UserRole;
+use App\Models\AssessmentAttempt;
 use BenSampo\Enum\Exceptions\InvalidEnumMemberException;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 use TiMacDonald\JsonApi\JsonApiResource;
 
 class AssessmentResultResource extends JsonApiResource
@@ -47,4 +50,5 @@ class AssessmentResultResource extends JsonApiResource
 
         return $response;
     }
+
 }
