@@ -38,7 +38,7 @@ class ResultDetailTest extends TestCase
         Auth::shouldReceive('id')->andReturn($user->id);
 
         // Act
-        $result = $this->assessmentService->resultDetail((string)$assessment->id, (string)$attempt->id);
+        $result = $this->assessmentService->resultDetail((string) $assessment->id, (string) $attempt->id);
 
         // Assert
         $this->assertEquals(Response::HTTP_FORBIDDEN, $result['status']);
@@ -53,7 +53,7 @@ class ResultDetailTest extends TestCase
         Auth::shouldReceive('user')->andReturn($user);
 
         // Act
-        $result = $this->assessmentService->resultDetail((string)$assessment->id, '1');
+        $result = $this->assessmentService->resultDetail((string) $assessment->id, '1');
 
         // Assert
         $this->assertEquals(Response::HTTP_NOT_FOUND, $result['status']);
@@ -91,7 +91,7 @@ class ResultDetailTest extends TestCase
         ]);
 
         // Assert
-        $result = $this->assessmentService->resultDetail((string)$assessment->id, (string)$attempt->id);
+        $result = $this->assessmentService->resultDetail((string) $assessment->id, (string) $attempt->id);
 
         $this->assertEquals('Assessment result retrieved successfully.', $result['message']);
         $this->assertEquals($attempt->id, $result['data']['id']);
@@ -149,9 +149,8 @@ class ResultDetailTest extends TestCase
             'marks' => 2,
         ]);
 
-
         // Assert
-        $result = $this->assessmentService->resultDetail((string)$assessment->id, (string)$attempt->id);
+        $result = $this->assessmentService->resultDetail((string) $assessment->id, (string) $attempt->id);
 
         $this->assertEquals('Assessment result retrieved successfully.', $result['message']);
         $this->assertEquals($attempt->id, $result['data']['id']);
@@ -172,13 +171,12 @@ class ResultDetailTest extends TestCase
         $this->assertEquals($question->content, $result['data']['questions'][0]['content']);
     }
 
-//    private function checkMultipleAnswers($question, $answers): bool
-//    {
-//        $correctOptions = $question->options->where('is_correct', true)->pluck('id')->sort();
-//        $selectedOptions = collect($answers)->sort();
-//        return $selectedOptions->count() === $correctOptions->count() && $selectedOptions->diff($correctOptions)->isEmpty();
-//    }
-
+    //    private function checkMultipleAnswers($question, $answers): bool
+    //    {
+    //        $correctOptions = $question->options->where('is_correct', true)->pluck('id')->sort();
+    //        $selectedOptions = collect($answers)->sort();
+    //        return $selectedOptions->count() === $correctOptions->count() && $selectedOptions->diff($correctOptions)->isEmpty();
+    //    }
 
     public function testResultDetailSuccessWithText(): void
     {
@@ -202,7 +200,7 @@ class ResultDetailTest extends TestCase
         ]);
 
         // Act
-        $result = $this->assessmentService->resultDetail((string)$assessment->id, (string)$attempt->id);
+        $result = $this->assessmentService->resultDetail((string) $assessment->id, (string) $attempt->id);
 
         // Assert
         $this->assertEquals('Assessment result retrieved successfully.', $result['message']);
@@ -242,7 +240,7 @@ class ResultDetailTest extends TestCase
         ]);
 
         // Assert
-        $result = $this->assessmentService->resultDetail((string)$assessment->id, (string)$attempt->id);
+        $result = $this->assessmentService->resultDetail((string) $assessment->id, (string) $attempt->id);
 
         $this->assertEquals('Assessment result retrieved successfully.', $result['message']);
         $this->assertEquals($attempt->id, $result['data']['id']);

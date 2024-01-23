@@ -48,8 +48,8 @@ class UserService extends BaseService
             ->where('role', '!=', UserRole::Admin)
             ->where('id', '!=', auth()->id())
             ->whereDoesntHave('groups', function ($q) use ($id) {
-                 $q->where('group_id', $id);
-        });
+                $q->where('group_id', $id);
+            });
 
         return parent::getList(UserResource::class, request()->all(), $query);
     }

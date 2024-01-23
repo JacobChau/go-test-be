@@ -177,5 +177,3 @@ Route::middleware(['api', 'auth'])->group(function () {
         Route::get('/{group}', 'show')->name('show');
     });
 });
-
-

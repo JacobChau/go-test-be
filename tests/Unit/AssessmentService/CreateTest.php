@@ -4,17 +4,17 @@ namespace Tests\Unit\AssessmentService;
 
 use App\Enums\QuestionType;
 use App\Enums\ResultDisplayMode;
+use App\Models\Assessment;
 use App\Models\Group;
 use App\Models\Question;
 use App\Models\QuestionCategory;
 use App\Models\Subject;
+use App\Services\AssessmentService;
 use Exception;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
-use App\Services\AssessmentService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use App\Models\Assessment;
 
 class CreateTest extends TestCase
 {
@@ -84,7 +84,6 @@ class CreateTest extends TestCase
         $this->assertEquals($data['requiredMark'], $result->required_mark);
         $this->assertEquals($data['resultDisplayMode'], $result->result_display_mode);
 
-
         foreach ($data['questions'] as $question) {
             $this->assertTrue($result->questions->contains($question['id']));
             if ($data['requiredMark']) {
@@ -93,13 +92,12 @@ class CreateTest extends TestCase
             $this->assertEquals($question['order'], $result->questions->find($question['id'])->pivot->order);
         }
 
-        $this->assertTrue($result->groups->contains($group->id), "Group is not attached to assessment");
+        $this->assertTrue($result->groups->contains($group->id), 'Group is not attached to assessment');
 
-        $this->assertCount(count($data['questions']), $result->questions, "Number of questions in assessment does not match");
-        $this->assertCount(count($data['groupIds']), $result->groups, "Number of groups in assessment does not match");
+        $this->assertCount(count($data['questions']), $result->questions, 'Number of questions in assessment does not match');
+        $this->assertCount(count($data['groupIds']), $result->groups, 'Number of groups in assessment does not match');
 
     }
-
 
     /**
      * @throws \Exception
@@ -128,8 +126,7 @@ class CreateTest extends TestCase
         $this->assertNull($result);
     }
 
-
-    public static function testCreateAssessmentSuccessProvider() : array
+    public static function testCreateAssessmentSuccessProvider(): array
     {
         return [
             'withRequiredMark' => [
@@ -253,7 +250,7 @@ class CreateTest extends TestCase
         ];
     }
 
-    public static function testCreateAssessmentFailureProvider() : array
+    public static function testCreateAssessmentFailureProvider(): array
     {
         return [
             'invalidSubjectId' => [

@@ -6,7 +6,6 @@ use App\Enums\QuestionType;
 use App\Enums\ResultDisplayMode;
 use App\Models\Assessment;
 use App\Models\AssessmentAttempt;
-use App\Models\AssessmentAttemptAnswer;
 use App\Models\Question;
 use App\Services\AssessmentService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -40,7 +39,7 @@ class UpdateAnswerAttemptTest extends TestCase
         $assessmentQuestionId = $assessment->questions->first()->pivot->id;
 
         // Act
-        $result = $this->assessmentService->updateAnswerAttempt((string)$assessment->id, (string)$attempt->id, (string)$assessmentQuestionId, ['marks' => 1, 'comment' => 'Good answer']);
+        $result = $this->assessmentService->updateAnswerAttempt((string) $assessment->id, (string) $attempt->id, (string) $assessmentQuestionId, ['marks' => 1, 'comment' => 'Good answer']);
 
         // Assert
         $this->assertEquals(1, $result['data']['marks']);
@@ -78,7 +77,7 @@ class UpdateAnswerAttemptTest extends TestCase
         ]);
 
         // Act
-        $result = $this->assessmentService->updateAnswerAttempt((string)$assessment->id, (string)$attempt->id, (string)$assessmentQuestionId, ['marks' => 2, 'comment' => 'Great answer']);
+        $result = $this->assessmentService->updateAnswerAttempt((string) $assessment->id, (string) $attempt->id, (string) $assessmentQuestionId, ['marks' => 2, 'comment' => 'Great answer']);
 
         // Assert
         $this->assertEquals(2, $result['data']['marks']);
@@ -113,7 +112,7 @@ class UpdateAnswerAttemptTest extends TestCase
         ]);
 
         // Act
-        $result = $this->assessmentService->updateAnswerAttempt((string)$assessment->id, (string)$attempt->id, (string)$assessmentQuestionId, ['marks' => 2, 'comment' => 'Great answer']);
+        $result = $this->assessmentService->updateAnswerAttempt((string) $assessment->id, (string) $attempt->id, (string) $assessmentQuestionId, ['marks' => 2, 'comment' => 'Great answer']);
 
         // Assert
         $this->assertEquals(2, $result['data']['marks']);

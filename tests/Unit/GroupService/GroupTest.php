@@ -9,6 +9,7 @@ use Tests\Unit\BaseService\BaseServiceTest;
 class GroupTest extends BaseServiceTest
 {
     use RefreshDatabase;
+
     public function setUp(): void
     {
         parent::setUp();

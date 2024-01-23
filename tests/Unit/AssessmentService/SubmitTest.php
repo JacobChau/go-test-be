@@ -1,17 +1,16 @@
 <?php
 
-
 use App\Models\Assessment;
 use App\Models\AssessmentAttempt;
 use App\Models\Question;
 use App\Models\QuestionOption;
 use App\Models\User;
+use App\Services\AssessmentService;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
-use App\Services\AssessmentService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class SubmitTest extends TestCase
 {
@@ -126,7 +125,6 @@ class SubmitTest extends TestCase
                 'answer' => $correctOption->id,
             ];
         }
-
 
         $assessmentId = (string) $assessment->id;
 

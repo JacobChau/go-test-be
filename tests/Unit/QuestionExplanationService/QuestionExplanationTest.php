@@ -13,7 +13,9 @@ use Tests\Unit\BaseService\BaseServiceTest;
 class QuestionExplanationTest extends BaseServiceTest
 {
     use RefreshDatabase;
+
     private $mediaServiceMock;
+
     private QuestionExplanationService $questionExplanationService;
 
     public function setUp(): void
@@ -45,7 +47,6 @@ class QuestionExplanationTest extends BaseServiceTest
             'question_id' => $questionId,
         ]);
     }
-
 
     public function testUpdateExplanationIfIdIsNotNull(): void
     {

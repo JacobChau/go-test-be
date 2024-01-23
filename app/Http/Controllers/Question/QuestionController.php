@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Question;
 
-use App\Enums\QuestionType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreQuestionRequest;
 use App\Http\Requests\UpdateQuestionRequest;
@@ -11,9 +10,7 @@ use App\Http\Resources\QuestionResource;
 use App\Models\Question;
 use App\Services\Question\QuestionService;
 use Exception;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Str;
 
 class QuestionController extends Controller
 {
@@ -76,7 +73,7 @@ class QuestionController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id) : JsonResponse
+    public function destroy(string $id): JsonResponse
     {
         $this->questionService->delete($id);
 

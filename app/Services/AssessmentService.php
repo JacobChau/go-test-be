@@ -23,13 +23,13 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Mail;
 use Symfony\Component\HttpFoundation\Response;
 
 class AssessmentService extends BaseService
 {
     protected QuestionOptionService $questionOptionService;
+
     public function __construct(
         Assessment $assessment,
         QuestionOptionService $questionOptionService
@@ -85,11 +85,11 @@ class AssessmentService extends BaseService
 
         // Apply common filters for all roles
         if (isset($input['filters'])) {
-            if (isset($input['filters']['isTaken']) && $input['filters']['isTaken'] === "true") {
+            if (isset($input['filters']['isTaken']) && $input['filters']['isTaken'] === 'true') {
                 $query->isTaken(auth()->id());
             }
 
-            if (isset($input['filters']['hasDuration']) && $input['filters']['hasDuration'] === "true") {
+            if (isset($input['filters']['hasDuration']) && $input['filters']['hasDuration'] === 'true') {
                 $query->hasDuration();
             }
         }
@@ -98,7 +98,7 @@ class AssessmentService extends BaseService
         if (auth()->user()->role !== UserRole::Admin) {
             $query->published()->notExpired();
 
-            if (!isset($input['filters']['isTaken'])) {
+            if (! isset($input['filters']['isTaken'])) {
                 $query->isNotTaken(auth()->id());
             }
 
@@ -149,13 +149,12 @@ class AssessmentService extends BaseService
         }
     }
 
-
     /**
      * @throws Exception
      */
     public function getQuestions(string $id): Collection
     {
-        if (!is_numeric($id)) {
+        if (! is_numeric($id)) {
             throw new ModelNotFoundException('Invalid ID provided');
         }
 
@@ -220,7 +219,7 @@ class AssessmentService extends BaseService
                 throw new ModelNotFoundException('Assessment attempt not found');
             }
 
-            $assessment = $this->getById((int)$id, ['questions.options']);
+            $assessment = $this->getById((int) $id, ['questions.options']);
             $questions = $assessment->questions;
 
             $totalMarks = 0;
@@ -232,7 +231,7 @@ class AssessmentService extends BaseService
                     continue;
                 }
 
-                $assessmentQuestionId  = $question->pivot->id;
+                $assessmentQuestionId = $question->pivot->id;
                 $this->storeUserAnswer($attempt->id, $assessmentQuestionId, $answer['answer']);
 
                 if ($this->checkAnswer($question, $answer['answer'])) {
@@ -266,7 +265,7 @@ class AssessmentService extends BaseService
      */
     public function resultDetail(string $assessmentId, string $attemptId): array
     {
-        $assessment = $this->getById((int)$assessmentId, ['questions.options', 'questions.explanation']);
+        $assessment = $this->getById((int) $assessmentId, ['questions.options', 'questions.explanation']);
 
         if ($assessment->result_display_mode !== ResultDisplayMode::DisplayMarkAndAnswers && $assessment->created_by !== auth()->id()) {
             return [
@@ -420,7 +419,7 @@ class AssessmentService extends BaseService
             $updateData['answer_comment'] = $data['comment'];
         }
 
-        if (!empty($updateData)) {
+        if (! empty($updateData)) {
             $attemptAnswer->update($updateData);
 
             $attempt = AssessmentAttempt::find($attemptId);
@@ -451,7 +450,7 @@ class AssessmentService extends BaseService
             ];
         }
 
-        $assessment = $this->getById((int)$assessmentId);
+        $assessment = $this->getById((int) $assessmentId);
         if ($assessment->result_display_mode === null) {
             return [
                 'status' => Response::HTTP_BAD_REQUEST,
@@ -470,7 +469,7 @@ class AssessmentService extends BaseService
         ];
     }
 
-    private function checkAnswer($question, $answer): bool | null
+    private function checkAnswer($question, $answer): ?bool
     {
         return match ($question->type) {
             QuestionType::TrueFalse, QuestionType::MultipleChoice => $this->checkSingleAnswer($question, $answer),
@@ -486,9 +485,10 @@ class AssessmentService extends BaseService
         switch ($question->type) {
             case QuestionType::TrueFalse:
             case QuestionType::MultipleChoice:
-                return (int)$answer;
+                return (int) $answer;
             case QuestionType::MultipleAnswer:
                 $answer = json_decode($answer, true);
+
                 return array_map('intval', $answer);
             case QuestionType::Text:
             case QuestionType::FillIn:
@@ -529,7 +529,6 @@ class AssessmentService extends BaseService
         ];
     }
 
-
     private function storeUserAnswer($attemptId, $assessmentQuestionId, $answer): AssessmentAttemptAnswer
     {
         $userAnswer = new AssessmentAttemptAnswer;
@@ -556,6 +555,7 @@ class AssessmentService extends BaseService
     {
         $correctOptions = $question->options->where('is_correct', true)->pluck('id')->sort();
         $selectedOptions = collect($answers)->sort();
+
         return $selectedOptions->count() === $correctOptions->count() && $selectedOptions->diff($correctOptions)->isEmpty();
     }
 

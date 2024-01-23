@@ -17,6 +17,7 @@ class QuestionResource extends JsonApiResource
         if ($this->type instanceof QuestionType) {
             $this->type = $this->type->value;
         }
+
         return [
             'content' => $this->content,
             'type' => QuestionType::getKey($this->type),

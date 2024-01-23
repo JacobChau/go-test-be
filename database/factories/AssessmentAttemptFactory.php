@@ -16,7 +16,7 @@ class AssessmentAttemptFactory extends Factory
      */
     public function definition(): array
     {
-    return [
+        return [
             'user_id' => UserFactory::new(),
             'assessment_id' => AssessmentFactory::new(),
             'total_marks' => $this->faker->numberBetween(0, 100),

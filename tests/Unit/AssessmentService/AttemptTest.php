@@ -5,10 +5,10 @@ namespace Tests\Unit\AssessmentService;
 use App\Models\Assessment;
 use App\Models\AssessmentAttempt;
 use App\Models\User;
-use Illuminate\Support\Facades\Auth;
-use Tests\TestCase;
 use App\Services\AssessmentService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
+use Tests\TestCase;
 
 class AttemptTest extends TestCase
 {

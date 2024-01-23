@@ -15,7 +15,6 @@ class AssessmentResource extends JsonApiResource
             })->created_at ?? null;
         });
 
-
         return [
             'name' => $this->name,
             'thumbnail' => $this->thumbnail,

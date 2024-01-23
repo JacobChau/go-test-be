@@ -23,18 +23,18 @@ class AssessmentPublished extends Mailable implements ShouldQueue
     public function build(): AssessmentPublished
     {
         $showDetailsButton = false;
-        $url = config('app.url') . '/tests';
+        $url = config('app.url').'/tests';
         if ($this->attempt->assessment->result_display_mode === ResultDisplayMode::DisplayMarkAndAnswers) {
-            $url .= '/' . $this->attempt->assessment_id . '/results' . '/' . $this->attempt->id;
+            $url .= '/'.$this->attempt->assessment_id.'/results'.'/'.$this->attempt->id;
             $showDetailsButton = true;
         }
 
-        return $this->subject("Your Assessment Results are Ready")
-        ->view('emails.assessmentPublished')
-        ->with([
-            'url' => $url,
-            'attempt' => $this->attempt,
-            'showDetailsButton' => $showDetailsButton,
-        ]);
+        return $this->subject('Your Assessment Results are Ready')
+            ->view('emails.assessmentPublished')
+            ->with([
+                'url' => $url,
+                'attempt' => $this->attempt,
+                'showDetailsButton' => $showDetailsButton,
+            ]);
     }
 }

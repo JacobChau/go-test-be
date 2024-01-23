@@ -8,7 +8,6 @@ use App\Services\AssessmentService;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
-use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 class GetQuestionsTest extends TestCase
@@ -22,7 +21,6 @@ class GetQuestionsTest extends TestCase
         parent::setUp();
         $this->assessmentService = $this->app->make(AssessmentService::class);
     }
-
 
     public function testGetQuestionsSuccessfully(): void
     {

@@ -12,7 +12,6 @@ use App\Http\Resources\QuestionDetailResource;
 use App\Models\Assessment;
 use App\Services\AssessmentService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 
 class AssessmentController extends Controller
 {

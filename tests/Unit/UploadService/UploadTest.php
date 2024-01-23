@@ -4,13 +4,13 @@ namespace Tests\Unit\UploadService;
 
 use App\Services\UploadService;
 use Illuminate\Filesystem\FilesystemServiceProvider;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class UploadTest extends TestCase
 {
     private UploadService $uploadService;
+
     public function setUp(): void
     {
         parent::setUp();
@@ -33,14 +33,12 @@ class UploadTest extends TestCase
         $this->assertEquals($expectedFileName, $result);
     }
 
-
-
-//    public function uploadToS3(string $imageUrl): string
-//    {
-//        $fileName = $this->getFileName($imageUrl);
-//
-//        Storage::disk('s3')->put($fileName, file_get_contents($imageUrl), 'public');
-//
-//        return $fileName;
-//    }
+    //    public function uploadToS3(string $imageUrl): string
+    //    {
+    //        $fileName = $this->getFileName($imageUrl);
+    //
+    //        Storage::disk('s3')->put($fileName, file_get_contents($imageUrl), 'public');
+    //
+    //        return $fileName;
+    //    }
 }

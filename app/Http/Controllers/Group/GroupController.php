@@ -104,7 +104,7 @@ class GroupController extends Controller
     {
         $this->groupService->removeMember($group->id, $user->id);
 
-    return $this->sendResponse(
+        return $this->sendResponse(
             null,
             'Member removed successfully',
             Response::HTTP_ACCEPTED

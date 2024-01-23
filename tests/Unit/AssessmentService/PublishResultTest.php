@@ -1,13 +1,9 @@
 <?php
 
-
-use App\Enums\QuestionType;
 use App\Enums\ResultDisplayMode;
 use App\Mail\AssessmentPublished;
 use App\Models\Assessment;
 use App\Models\AssessmentAttempt;
-use App\Models\AssessmentAttemptAnswer;
-use App\Models\Question;
 use App\Models\User;
 use App\Services\AssessmentService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -27,14 +23,13 @@ class PublishResultTest extends TestCase
         $this->assessmentService = $this->app->make(AssessmentService::class);
     }
 
-
     public function testPublishResultWhenAttemptNotFound(): void
     {
         // Arrange
         $nonExistingAttemptId = 9999;
 
         // Act
-        $result = $this->assessmentService->publishResult('1', (string)$nonExistingAttemptId);
+        $result = $this->assessmentService->publishResult('1', (string) $nonExistingAttemptId);
         // Assert
         $this->assertEquals(Response::HTTP_NOT_FOUND, $result['status']);
         $this->assertEquals('Assessment attempt not found', $result['message']);
@@ -49,11 +44,11 @@ class PublishResultTest extends TestCase
         $attempt = AssessmentAttempt::factory()->create(['assessment_id' => $assessment->id, 'user_id' => $user->id, 'marked' => true]);
 
         // Act
-        $result = $this->assessmentService->publishResult((string)$assessment->id, (string)$attempt->id);
+        $result = $this->assessmentService->publishResult((string) $assessment->id, (string) $attempt->id);
 
         // Assert
         $this->assertNotNull($attempt->refresh(), 'Attempt should be found in database');
-        $this->assertTrue((bool)$attempt->marked, 'Attempt should be marked');
+        $this->assertTrue((bool) $attempt->marked, 'Attempt should be marked');
         $this->assertEquals('Assessment result published successfully.', $result['message']);
 
         Mail::assertQueued(AssessmentPublished::class, function ($mail) use ($user, $assessment) {
@@ -70,7 +65,7 @@ class PublishResultTest extends TestCase
         $attempt = AssessmentAttempt::factory()->create(['assessment_id' => $assessment->id]);
 
         // Act
-        $result = $this->assessmentService->publishResult((string)$assessment->id, (string)$attempt->id);
+        $result = $this->assessmentService->publishResult((string) $assessment->id, (string) $attempt->id);
 
         // Assert
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $result['status']);

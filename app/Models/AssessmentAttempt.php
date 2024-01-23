@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class AssessmentAttempt extends Model
 {
     use HasFactory;
+
     protected $fillable = ['user_id', 'assessment_id', 'total_marks', 'marked'];
 
     public function user(): BelongsTo

@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Question extends Model
 {
-    use HasCreatedBy, SoftDeletes, HasFactory;
+    use HasCreatedBy, HasFactory, SoftDeletes;
 
     protected $fillable = ['content', 'type', 'is_published', 'passage_id', 'category_id'];
 

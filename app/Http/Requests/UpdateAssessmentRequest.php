@@ -4,8 +4,8 @@ namespace App\Http\Requests;
 
 use App\Enums\ResultDisplayMode;
 use Illuminate\Contracts\Validation\ValidationRule;
-use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rules\Enum;
 
 class UpdateAssessmentRequest extends FormRequest
@@ -55,7 +55,7 @@ class UpdateAssessmentRequest extends FormRequest
             'groupIds' => 'nullable|array',
             'groupIds.*' => 'required_with:groupIds|exists:groups,id',
             'requiredMark' => 'nullable|boolean',
-            'resultDisplayMode' =>  ['required_with:requiredMark', new Enum(ResultDisplayMode::class)],
+            'resultDisplayMode' => ['required_with:requiredMark', new Enum(ResultDisplayMode::class)],
         ];
     }
 }

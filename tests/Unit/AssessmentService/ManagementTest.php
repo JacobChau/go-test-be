@@ -1,10 +1,7 @@
 <?php
 
-
 use App\Enums\UserRole;
-use App\Http\Resources\AssessmentDetailResource;
 use App\Models\Assessment;
-use App\Models\AssessmentAttempt;
 use App\Models\User;
 use App\Services\AssessmentService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -22,7 +19,6 @@ class ManagementTest extends TestCase
         parent::setUp();
         $this->assessmentService = $this->app->make(AssessmentService::class);
     }
-
 
     public function testManagementForAdmin(): void
     {
@@ -52,7 +48,7 @@ class ManagementTest extends TestCase
 
         // Act
         $result = $this->actingAs($nonAdmin) // Authenticate as nonAdmin
-        ->assessmentService->management();
+            ->assessmentService->management();
 
         // Assert
         $this->assertEquals(3, $result['data']->count());

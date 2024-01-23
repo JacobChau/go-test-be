@@ -1,26 +1,16 @@
 <?php
 
-use App\Enums\PaginationSetting;
-use App\Enums\QuestionType;
 use App\Enums\ResultDisplayMode;
-use App\Enums\UserRole;
-use App\Http\Resources\AssessmentDetailResource;
-use App\Http\Resources\AssessmentResource;
-use App\Http\Resources\SubjectResource;
 use App\Models\Assessment;
 use App\Models\Group;
 use App\Models\Question;
-use App\Models\QuestionCategory;
 use App\Models\Subject;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Http\Request;
+use App\Services\AssessmentService;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
-use App\Services\AssessmentService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class UpdateTest extends TestCase
 {
@@ -118,65 +108,64 @@ class UpdateTest extends TestCase
         $result = Assessment::with(['questions', 'groups'])->find($assessment->id);
     }
 
-    public static function updateAssessmentSuccessProvider():array
+    public static function updateAssessmentSuccessProvider(): array
     {
         return [
-            'update with requiredMark' =>
-                [
-                    'initial' => [
-                        'name' => 'testUpdateAssessmentWithRequiredMark',
-                        'subjectId' => 1,
-                        'description' => 'testUpdateAssessmentWithRequiredMark',
-                        'duration' => 10,
-                        'totalMarks' => null,
-                        'passMarks' => null,
-                        'maxAttempts' => 1,
-                        'validFrom' => '2021-01-01',
-                        'validTo' => '2022-01-01',
-                        'isPublished' => true,
-                        'questions' => [
-                            [
-                                'id' => 1,
-                                'order' => 1,
-                            ],
-                            [
-                                'id' => 2,
-                                'order' => 2,
-                            ],
+            'update with requiredMark' => [
+                'initial' => [
+                    'name' => 'testUpdateAssessmentWithRequiredMark',
+                    'subjectId' => 1,
+                    'description' => 'testUpdateAssessmentWithRequiredMark',
+                    'duration' => 10,
+                    'totalMarks' => null,
+                    'passMarks' => null,
+                    'maxAttempts' => 1,
+                    'validFrom' => '2021-01-01',
+                    'validTo' => '2022-01-01',
+                    'isPublished' => true,
+                    'questions' => [
+                        [
+                            'id' => 1,
+                            'order' => 1,
                         ],
-                        'groupIds' => [1],
-                        'requiredMark' => false,
-                        'resultDisplayMode' => null,
-                        'created_by' => 1,
-                    ],
-                    'update' => [
-                        'name' => 'testUpdateAssessmentWithRequiredMark',
-                        'subjectId' => 1,
-                        'description' => 'testUpdateAssessmentWithRequiredMark',
-                        'duration' => 10,
-                        'totalMarks' => 20,
-                        'passMarks' => null,
-                        'maxAttempts' => 1,
-                        'validFrom' => '2021-01-01',
-                        'validTo' => '2022-01-01',
-                        'isPublished' => true,
-                        'questions' => [
-                            [
-                                'id' => 1,
-                                'marks' => 10,
-                                'order' => 1,
-                            ],
-                            [
-                                'id' => 2,
-                                'marks' => 10,
-                                'order' => 2,
-                            ],
+                        [
+                            'id' => 2,
+                            'order' => 2,
                         ],
-                        'groupIds' => [1],
-                        'requiredMark' => true,
-                        'resultDisplayMode' => ResultDisplayMode::DisplayMarkAndAnswers,
-                        'created_by' => 1,
                     ],
+                    'groupIds' => [1],
+                    'requiredMark' => false,
+                    'resultDisplayMode' => null,
+                    'created_by' => 1,
+                ],
+                'update' => [
+                    'name' => 'testUpdateAssessmentWithRequiredMark',
+                    'subjectId' => 1,
+                    'description' => 'testUpdateAssessmentWithRequiredMark',
+                    'duration' => 10,
+                    'totalMarks' => 20,
+                    'passMarks' => null,
+                    'maxAttempts' => 1,
+                    'validFrom' => '2021-01-01',
+                    'validTo' => '2022-01-01',
+                    'isPublished' => true,
+                    'questions' => [
+                        [
+                            'id' => 1,
+                            'marks' => 10,
+                            'order' => 1,
+                        ],
+                        [
+                            'id' => 2,
+                            'marks' => 10,
+                            'order' => 2,
+                        ],
+                    ],
+                    'groupIds' => [1],
+                    'requiredMark' => true,
+                    'resultDisplayMode' => ResultDisplayMode::DisplayMarkAndAnswers,
+                    'created_by' => 1,
+                ],
             ],
             'update with questions and groups' => [
                 'initial' => [
@@ -206,7 +195,7 @@ class UpdateTest extends TestCase
                     'requiredMark' => false,
                     'resultDisplayMode' => null,
                     'created_by' => 1,
-                    ],
+                ],
                 'update' => [
                     'name' => 'testUpdateAssessmentWithQuestionsAndGroups',
                     'subjectId' => 1,
@@ -223,7 +212,7 @@ class UpdateTest extends TestCase
                             'id' => 3,
                             'marks' => 10,
                             'order' => 1,
-                            ],
+                        ],
                         [
                             'id' => 4,
                             'marks' => 10,
@@ -239,7 +228,8 @@ class UpdateTest extends TestCase
         ];
     }
 
-    public static function updateAssessmentFailProvider(): array {
+    public static function updateAssessmentFailProvider(): array
+    {
         return [
             'update with invalid subjectId' => [
                 'initial' => [

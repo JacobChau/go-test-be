@@ -2,13 +2,10 @@
 
 namespace App\Http\Resources;
 
-use App\Enums\QuestionType;
 use App\Enums\ResultDisplayMode;
 use App\Enums\UserRole;
-use App\Models\AssessmentAttempt;
 use BenSampo\Enum\Exceptions\InvalidEnumMemberException;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
 use TiMacDonald\JsonApi\JsonApiResource;
 
 class AssessmentResultResource extends JsonApiResource
@@ -34,7 +31,7 @@ class AssessmentResultResource extends JsonApiResource
         if (auth()->user()->role === UserRole::Admin || $this->assessment->created_by === auth()->user()->id) {
             $response['displayMode'] = ResultDisplayMode::getKey(ResultDisplayMode::DisplayMarkAndAnswers);
             $response['fromOwner'] = true;
-        } else if ($this->assessment->result_display_mode !== null) {
+        } elseif ($this->assessment->result_display_mode !== null) {
             $response['displayMode'] = ResultDisplayMode::getKey($this->assessment->result_display_mode);
         }
 
@@ -50,5 +47,4 @@ class AssessmentResultResource extends JsonApiResource
 
         return $response;
     }
-
 }

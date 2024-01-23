@@ -2,18 +2,12 @@
 
 namespace Tests\Unit\AssessmentService;
 
-use App\Enums\ResultDisplayMode;
-use App\Enums\UserRole;
-use App\Http\Resources\UserResource;
 use App\Models\Assessment;
 use App\Models\AssessmentAttempt;
 use App\Models\User;
 use App\Services\AssessmentService;
-use BenSampo\Enum\Exceptions\InvalidEnumMemberException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\Request;
 use Tests\TestCase;
-use TiMacDonald\JsonApi\JsonApiResource;
 
 class GetResultsByAssessmentIdTest extends TestCase
 {

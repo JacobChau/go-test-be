@@ -22,7 +22,6 @@ class ResultTest extends TestCase
         $this->assessmentService = $this->app->make(AssessmentService::class);
     }
 
-
     public function testResultsWhenNoAttempts()
     {
         // Arrange

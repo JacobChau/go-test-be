@@ -90,7 +90,7 @@ class QuestionSeeder extends Seeder
         ]);
 
         $question3 = Question::create([
-        'content' => 'When was the TOEIC test first administered?',
+            'content' => 'When was the TOEIC test first administered?',
             'type' => QuestionType::MultipleChoice,
             'is_published' => true,
             'passage_id' => $passage->id,

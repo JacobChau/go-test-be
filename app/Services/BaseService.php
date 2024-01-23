@@ -128,7 +128,7 @@ class BaseService
             $query->whereHas($searchColumn[0], function ($query) use ($searchType, $searchColumn, $searchKeyword) {
                 $this->applySearchType($query, $searchType, $searchColumn[1], $searchKeyword);
             });
-        } else if (str_contains($searchColumn, ',')) {
+        } elseif (str_contains($searchColumn, ',')) {
             $searchColumns = explode(',', $searchColumn);
             // case: search by multiple columns (ex: name,email) so if name or email contains keyword, it will be returned
             $query->where(function ($query) use ($searchType, $searchColumns, $searchKeyword) {
@@ -139,8 +139,7 @@ class BaseService
                 }
             });
 
-        }
-        else {
+        } else {
             $this->applySearchType($query, $searchType, $searchColumn, $searchKeyword);
         }
     }
