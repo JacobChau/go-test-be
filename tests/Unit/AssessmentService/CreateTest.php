@@ -103,7 +103,7 @@ class CreateTest extends TestCase
      * @throws \Exception
      */
     #[DataProvider('testCreateAssessmentFailureProvider')]
-    public function testCreateAssessmentFailure(array $data, $expectedException): void
+    public function testCreateAssessmentFailure(array $data): void
     {
         DB::shouldReceive('beginTransaction')->once();
         DB::shouldReceive('commit')->never();
@@ -126,7 +126,7 @@ class CreateTest extends TestCase
         $this->assertNull($result);
     }
 
-    public static function testCreateAssessmentSuccessProvider(): array
+    public static function createAssessmentSuccessProvider(): array
     {
         return [
             'withRequiredMark' => [
@@ -250,7 +250,7 @@ class CreateTest extends TestCase
         ];
     }
 
-    public static function testCreateAssessmentFailureProvider(): array
+    public static function createAssessmentFailureProvider(): array
     {
         return [
             'invalidSubjectId' => [

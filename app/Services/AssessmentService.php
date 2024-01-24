@@ -107,6 +107,8 @@ class AssessmentService extends BaseService
             });
         }
 
+        $query->has('questions');
+
         return parent::getList($resourceClass, $input, $query, $relations);
     }
 
@@ -157,7 +159,7 @@ class AssessmentService extends BaseService
             throw new ModelNotFoundException('Invalid ID provided');
         }
 
-        $assessment = $this->model->with('questions.options')->find($id);
+        $assessment = $this->model->with('questions.options', 'questions.explanation', 'questions.category', 'questions.passage')->find($id);
 
         if ($assessment === null) {
             throw new ModelNotFoundException('Assessment not found');
@@ -334,6 +336,7 @@ class AssessmentService extends BaseService
                     'avatar' => $attempt->user->avatar,
                 ],
                 'marked' => $attempt->marked,
+                'resultDisplayMode' => $assessment->result_display_mode ? ResultDisplayMode::getKey($assessment->result_display_mode) : null,
             ],
             'message' => 'Assessment result retrieved successfully.',
         ];

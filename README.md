@@ -15,7 +15,7 @@
     <img src="./public/logo.svg" alt="Logo" width="80" height="80">
   </a>
 
-<h3 align="center">go-test-be</h3>
+<h3 align="center">Owl Test</h3>
 
   <p align="center">
     A simple backend for testing purposes
