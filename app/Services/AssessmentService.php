@@ -94,7 +94,6 @@ class AssessmentService extends BaseService
             }
         }
 
-        // Apply role-specific filters and conditions
         if (auth()->user()->role !== UserRole::Admin) {
             $query->published()->notExpired();
 
